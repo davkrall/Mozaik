@@ -125,7 +125,7 @@ app.post("/v1/collections", function (request, response) {
   });
 });
 
-//getCollectionByAccountId
+//getCollectionsByAccountId
 app.get("/v1/collections", function (request, response) {
   const id = request.query.accountId; //collections?accountId=1
   const query = "SELECT * FROM collections WHERE accountId = ?";
@@ -191,7 +191,7 @@ app.get("/v1/images", function (request, response) {
   const id = request.query.accountId; //images?collectionId=1
   const query = "SELECT * FROM images WHERE collectionId = ?";
   const values = [id];
-  db.all(query, values, function (error, collections) {
+  db.all(query, values, function (error, images) {
     if (error) {
       // If something went wrong, send back status code 500.
       response.status(500).end();
@@ -202,7 +202,7 @@ app.get("/v1/images", function (request, response) {
   });
 });
 
-//deleteImagesById
+//deleteImageById
 app.delete("/v1/images/:id", function (request, response) {
   const id = parseInt(request.params.id);
   const query = "DELETE FROM images WHERE id = ?";
