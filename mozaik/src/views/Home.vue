@@ -9,12 +9,14 @@
 </template>
 
 <script>
+const client = require("../mozaik-client");
+
 export default {
   data() {
     return {
       //INPUTS for API calls
       input_createAccount: {
-        username: "david91",
+        username: "david89",
         password: "thisismypassword"
       },
       input_updateAccount: {
@@ -23,6 +25,17 @@ export default {
       },
     };
   },
+  methods: {
+    createAccount(account) {
+      client.createAccount(account, (errors, id) => {
+        if (errors.length ==0) {
+          alert("Account created!" + id);
+        } else {
+          alert(errors);
+        }
+      })
+    }
+  }
 };
 </script>
 

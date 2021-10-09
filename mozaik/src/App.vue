@@ -30,3 +30,18 @@
   color: #42b983;
 }
 </style>
+
+<script>
+const client = require("./mozaik-client");
+
+export default {
+  data() {
+    return {
+
+    };
+  },
+  methods: {
+
+  }
+}
+</script>
