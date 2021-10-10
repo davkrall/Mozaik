@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .btn-purple {
+      @apply py-2 px-8 m-2 bg-purple font-display text-white font-normal text-base rounded-full hover:bg-black focus:outline-none;
+    }
+
+    .btn-outline {
+        @apply py-2 px-8 m-2 bg-white font-display outline-black text-black font-normal text-base rounded-full hover:bg-black hover:text-white focus:outline-none;
+      
+    }
+
+    .btn-outline-icon {
+        @apply py-2 px-8 m-2 bg-white font-display outline-black text-black font-normal text-base rounded-full hover:bg-black hover:text-white focus:outline-none ;
+      
+    }
+
+    .btn-purple-icon {
+        @apply py-2 px-8 m-2 bg-purple font-display text-white font-normal text-base rounded-full hover:bg-black hover:text-white focus:outline-none ;
+      
+    }
+    
+    .input {
+        @apply px-4 py-4 w-64 placeholder-black placeholder-opacity-40 text-black font-body bg-white rounded-full text-sm border border-black focus:outline-none mt-2 mb-6;
+    }
+  }
