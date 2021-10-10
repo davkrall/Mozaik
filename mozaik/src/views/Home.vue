@@ -38,7 +38,7 @@
 
       <div class="container mt-5">
         <div class="w-1/3 h-80 bg-grey rounded-sm"></div>
-        <p class="font-display text-lg mt-3 ">Your first collection</p>
+        <router-link to="/collection/"><p class="font-display text-lg mt-3 ">Your first collection</p></router-link>
         <p class="font-body text-sm font-light">0 items</p>
       </div>
 
