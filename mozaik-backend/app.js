@@ -12,8 +12,8 @@ db.run(`PRAGMA foreign_keys = ON`);
 db.run(`
     CREATE TABLE IF NOT EXISTS accounts(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-	    username TEXT,
-		  password TEXT,
+	    username TEXT NOT NULL,
+		  password TEXT NOT NULL,
       CONSTRAINT uniqueUsername UNIQUE(username)
 	)
 `);
@@ -22,7 +22,7 @@ db.run(`
 db.run(`
 CREATE TABLE IF NOT EXISTS collections(
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  title TEXT,
+  title TEXT NOT NULL,
   description TEXT,
   accountId INTEGER,
   FOREIGN KEY(accountId) REFERENCES accounts(id) ON DELETE CASCADE
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS collections(
 db.run(`
 CREATE TABLE IF NOT EXISTS images(
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  location TEXT,
+  location TEXT NOT NULL,
   collectionId INTEGER,
   FOREIGN KEY(collectionId) REFERENCES collections(id)  ON DELETE CASCADE
 )
@@ -216,4 +216,6 @@ app.delete("/v1/images/:id", function (request, response) {
   });
 });
 
-app.listen(3000);
+app.listen(3000, () => {
+  console.log("Running...");
+});
