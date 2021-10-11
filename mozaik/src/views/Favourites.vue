@@ -24,14 +24,29 @@
 
       <div class="container flex justify-between items-center">
         <div>
-          <router-link to="/home" class="font-display relative mr-9 text-darkgrey">My collections<span class="text-sm absolute inset-x-31 -top-3">0</span></router-link>
-          <router-link to="/favourites" class="font-display relative mr-9 active:text-black " >Favourites <span class="text-sm absolute inset-x-31 -top-3" >0</span> </router-link>
+          <router-link to="/home" class="font-display relative mr-9 text-darkgrey">My collections<span class="text-sm absolute -right-3.5 -top-3">1</span></router-link>
+          <router-link to="/favourites" class="font-display relative mr-9 active:text-black " >Favourites <span class="text-sm absolute -right-3.5 -top-3" >0</span> </router-link>
         </div>
         <div>
        
-       <button class="btn-purple-icon inline-flex items-center mb-0">
-        <svg class="w-4 h-4 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22"><path d="M0 0h24v24H0z" fill="none"/>
-              <path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
+        <button class="btn-purple-icon inline-flex items-center">
+          <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="12 -2 30 30"
+          fill="none"
+          stroke="#ffffff"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="overflow-visible"
+        >
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="16"></line>
+          <line x1="8" y1="12" x2="16" y2="12"></line>
+        </svg>
+          
           <span>Create new collection</span>
         </button>
         </div>

@@ -19,10 +19,10 @@
     <main>
       <div class="mt-16 mb-32 flex flex-col justify-center items-center">
       <p class="text-3xl font-display text-purple">Register quick and easy</p>
-      <p class="text-base font-body text-black mt-6">Register an acccount with Facebook</p>
+      <p class="text-base font-normal font-body text-black mt-6">Register an acccount with Facebook</p>
   
-      <img src="../assets/facebook-icon.png" alt="facebook icon" class="w-12 h-12 mt-8 mb-5">
-      <p class="my-3"> OR</p>
+      <img src="../assets/facebook-icon-3.png" alt="facebook icon" class="w-14 h-14 mt-7 mb-4">
+      <p class="my-3"> or</p>
       
       <form>
       <label for="username" class="font-display text-base pl-4">Username</label><br>
@@ -33,13 +33,28 @@
        <input id="position" type="text" placeholder="Example: Product designer" class="input mb-10"><br>
       </form>
 
-      <p class="mb-3">Profile picture</p>
+      <p class="mb-3 mr-med">Profile picture</p>
 
-      <button class="btn-outline-icon inline-flex items-center mb-14">
-      <svg class="w-4 h-4 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22"><path d="M0 0h24v24H0z" fill="none"/>
-            <path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
-        <span>Upload profile picture</span>
-      </button>
+       <button class="btn-outline-icon inline-flex items-center mb-10">
+          <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="12 -2 30 30"
+          fill="none"
+          stroke="#000000"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="overflow-visible stroke-current"
+        >
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="16"></line>
+          <line x1="8" y1="12" x2="16" y2="12"></line>
+        </svg>
+          
+          <span>Upload profile picture</span>
+        </button>
 
       <div>
         <router-link :to="'/signin'"><button class="btn-outline">Sign in</button></router-link>

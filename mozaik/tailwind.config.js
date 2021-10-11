@@ -5,6 +5,9 @@ module.exports = {
   darkMode: false, // or 'media' or 'class'
   theme: {
     extend: {
+
+    stroke: ['hover', 'focus'],
+
     colors: {
       purple : "#6951F6",
       black : "#000000",
@@ -15,6 +18,10 @@ module.exports = {
 
     outline: {
       black: '1px solid #000000',
+    },
+
+    margin: {
+      med: '120px',
     },
 
     variants: {

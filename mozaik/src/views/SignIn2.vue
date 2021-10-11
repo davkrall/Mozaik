@@ -27,7 +27,7 @@
       </form>
 
       <div>
-        <router-link :to="'/home'"><button class="btn-purple w-40">Sign in</button></router-link>
+        <router-link :to="'/home'"><button class="btn-purple">Sign in</button></router-link>
       </div>
       </div>
 
