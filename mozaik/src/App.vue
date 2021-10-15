@@ -1,17 +1,19 @@
 <template>
-
- <router-view/>
- 
-</template> 
-
+  <router-view :user="user"/>
+</template>
 
 <script>
 const client = require("./mozaik-client");
 
-export default {
+module.exports = {
   data() {
-    return {};
+    return {
+      user: {
+        isSignedIn: false,
+        sessionUserId: "",
+        sessionUsername: "",
+      },
+    };
   },
-  methods: {},
 };
 </script>

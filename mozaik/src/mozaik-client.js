@@ -1,7 +1,13 @@
 //Much of the code for the SDK has been reused or adapted from the activity-finder-client.js example
+const jwtDecode = require("jwt-decode").default;
+const base64 = require("base-64");
 
 const networkDelayInMs = 10;
 const rootPath = "http://localhost:3000/v1";
+const client_id = "ShVmYq3t6w9z$C&F)J@NcRfUjWnZr4u7";
+const client_secret = "8x/A%D*G-KaPdSgVkYp3s6v9y$B&E(H+";
+
+let accessToken = null;
 
 async function sendRequest(
   method,
@@ -12,12 +18,15 @@ async function sendRequest(
   let bodyToSend = "";
   const headers = new Headers();
 
-  // Add the access token if signed in.
-  /*
+  // Add the access token if signed in, and the client authentication token if not
   if (accessToken != null) {
     headers.append("Authorization", "Bearer " + accessToken);
+  } else {
+    headers.append(
+      "Authorization",
+      "Basic " + base64.encode(client_id + ":" + client_secret)
+    );
   }
-  */
 
   // Add the body if available.
   if (body != null) {
@@ -69,6 +78,7 @@ async function sleep(ms) {
 }
 
 export async function createAccount(account, callback) {
+  //account: {username: XY, password: XYZ}
   let response;
 
   try {
@@ -99,6 +109,8 @@ export async function createAccount(account, callback) {
 }
 
 export async function updateAccountById(id, account, callback) {
+  //id: the account's id number
+  //account: {username: XY, password: XYZ}
   let response;
 
   try {
@@ -126,6 +138,7 @@ export async function updateAccountById(id, account, callback) {
 }
 
 export async function deleteAccountById(id, callback) {
+  //id: the account's id number
   let response;
 
   try {
@@ -153,6 +166,7 @@ export async function deleteAccountById(id, callback) {
 }
 
 export async function createCollection(collection, callback) {
+  //collection: {title: XY, description: XYZ, accountId: the active account's id}
   let response;
 
   try {
@@ -183,6 +197,7 @@ export async function createCollection(collection, callback) {
 }
 
 export async function getCollectionsByAccountId(id, callback) {
+  //id: the account's id number
   let response;
 
   try {
@@ -212,6 +227,9 @@ export async function getCollectionsByAccountId(id, callback) {
 }
 
 export async function updateCollectionById(id, collection, callback) {
+  //id: the account's id number
+  //collection: {title: XY, description: XYZ}
+
   let response;
 
   try {
@@ -239,6 +257,7 @@ export async function updateCollectionById(id, collection, callback) {
 }
 
 export async function deleteCollectionById(id, callback) {
+  //id: the collection's id number
   let response;
 
   try {
@@ -266,6 +285,7 @@ export async function deleteCollectionById(id, callback) {
 }
 
 export async function createImage(image, callback) {
+  //{url: XY, collectionId: XY}
   let response;
 
   try {
@@ -296,6 +316,7 @@ export async function createImage(image, callback) {
 }
 
 export async function getImagesByCollectionId(id, callback) {
+  //id: the collection's id number
   let response;
 
   try {
@@ -325,6 +346,7 @@ export async function getImagesByCollectionId(id, callback) {
 }
 
 export async function deleteImageById(id, callback) {
+  //id: the image's id number
   let response;
 
   try {
@@ -349,4 +371,58 @@ export async function deleteImageById(id, callback) {
   }
 
   callback(errors);
+}
+
+export async function signIn(username, password, callback) {
+  const bodyToSend = {
+    grant_type: "password",
+    username,
+    password,
+  };
+
+  let response;
+
+  try {
+    response = await sendRequest(
+      "POST",
+      "/tokens",
+      bodyToSend,
+      "application/x-www-form-urlencoded"
+    );
+  } catch (errors) {
+    callback(errors);
+    return;
+  }
+
+  let errors = [];
+  let account = {
+    id: -1,
+    username: "",
+  };
+  let body;
+
+  switch (response.status) {
+    case 200:
+      body = await response.json();
+      accessToken = body.access_token;
+
+      const payload = jwtDecode(body.id_token);
+      account.id = payload.sub;
+      account.username = payload.preferred_username;
+      break;
+
+    case 400:
+      errors = ["clientError"];
+      break;
+
+    default:
+      displayError(response);
+  }
+
+  callback(errors, account);
+}
+
+export async function signOut(callback) {
+  accessToken = null;
+  callback();
 }

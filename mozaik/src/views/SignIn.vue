@@ -21,14 +21,14 @@
       <p class="text-3xl font-display mb-12 text-purple">Sign in quick and easy</p>
       <form>
       <label for="username" class="font-display text-base pl-4">Username</label><br>
-      <input id="username" type="text" placeholder="Example: Katiedesign" class="input"><br>
+      <input id="username" type="text" placeholder="Example: Katiedesign" class="input" v-model="signInAccount.signInUsername"><br>
        <label for="password"  class=" font-display text-base pl-4">Password</label><br>
-       <input id="password" type="password" placeholder="Must include 8 characters" class="input mb-14"><br>
+       <input id="password" type="password" placeholder="Must include 8 characters" class="input mb-14" v-model="signInAccount.signInPassword"><br>
       </form>
 
       <div>
         <router-link :to="'/registration'"><button class="btn-outline">Register</button></router-link>
-        <router-link :to="'/home'"><button class="btn-purple">Sign in</button></router-link>
+        <router-link :to="'/home'"><button class="btn-purple" @click="signUserIn">Sign in</button></router-link>
         
       </div>
       </div>
@@ -62,9 +62,30 @@
 const client = require("../mozaik-client");
 
 export default {
+  props: ["user"],
   data() {
-    return {};
+    return {
+            signInAccount: {
+        signInUsername: "",
+        signInPassword: "",
+      },
+    };
   },
-  methods: {},
+  methods: {
+      signUserIn() {
+      const username = this.signInAccount.signInUsername;
+      const password = this.signInAccount.signInPassword;
+
+      client.signIn(username, password, (errors, account) => {
+        if (errors.length == 0) {
+          this.user.isSignedIn = true;
+          this.user.sessionUserId = account.id;
+          this.user.sessionUsername = account.username;
+        } else {
+          alert(errors);
+        }
+      });
+    },
+  },
 };
 </script>

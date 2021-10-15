@@ -1,6 +1,16 @@
 const express = require("express");
 const sqlite3 = require("sqlite3");
-const bodyParser = require("body-parser");
+const jwt = require("jsonwebtoken");
+const base64 = require("base-64");
+const download = require("image-downloader");
+const fs = require("fs");
+const bcrypt = require("bcryptjs");
+
+const jwtSecret = "cQfTjWnZr4u7w!z%C*F-JaNdRgUkXp2s";
+const idSecret = "8y/B?E(H+KbPeShVmYq3t6w9z$C&F)J@";
+
+const client_id = "ShVmYq3t6w9z$C&F)J@NcRfUjWnZr4u7";
+const client_secret = "8x/A%D*G-KaPdSgVkYp3s6v9y$B&E(H+";
 
 const db = new sqlite3.Database("mozaik-database.db");
 
@@ -40,7 +50,12 @@ CREATE TABLE IF NOT EXISTS images(
 `);
 
 const app = express();
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(
+  express.urlencoded({
+    extended: false,
+  })
+);
 
 // Enable CORS.
 app.use(function (request, response, next) {
@@ -64,94 +79,168 @@ app.use(function (request, response, next) {
   next();
 });
 
+//Receiving and extracting tokens middleware
+app.use(function (request, response, next) {
+  try {
+    const authorizationHeader = request.get("Authorization");
+    if (authorizationHeader.substr(0, 7) === "Bearer ") {
+      const accessToken = authorizationHeader.substr("Bearer ".length);
+
+      jwt.verify(accessToken, jwtSecret, function (error, payload) {
+        if (error) {
+          console.log(`Retrieved invalid access token "${accessToken}".`);
+          response.status(400).json({ error: "invalid_access_token" });
+        } else {
+          request.id = payload.id;
+          next();
+        }
+      });
+    } else if (authorizationHeader.substr(0, 6) === "Basic ") {
+      const clientAuthorization = authorizationHeader.substr("Basic ".length);
+
+      const clientCredentials = base64.decode(clientAuthorization);
+      const indexOfColon = clientCredentials.indexOf(":");
+
+      request.clientId = clientCredentials.substr(0, indexOfColon);
+      request.clientSecret = clientCredentials.substr(indexOfColon + 1);
+      next();
+    } else {
+      response.status(400).json({ error: "invalid_authorization_type" });
+    }
+  } catch (error) {
+    next();
+  }
+});
+
 //createAccount
 app.post("/v1/accounts", function (request, response) {
-  const account = request.body; //{username: XY, password: XYZ}
-  const query = "INSERT INTO accounts (username, password) VALUES (?, ?)";
-  const values = [account.username, account.password];
-  db.run(query, values, function (error) {
-    if (error) {
-      response.status(500).end();
-    } else {
-      const id = this.lastID;
-      response.setHeader("Location", "/accounts/" + id);
-      response.status(201).end();
-    }
-  });
+  if (request.clientId != client_id || request.clientSecret != client_secret) {
+    response.status(400).json({ error: "invalid_client_credentials" });
+  } else {
+    const account = request.body; //{username: XY, password: XYZ}
+
+    const hashingRounds = 8;
+    const passwordToHash = account.password;
+    const hashValue = bcrypt.hashSync(passwordToHash, hashingRounds);
+  
+    const query = "INSERT INTO accounts (username, password) VALUES (?, ?)";
+    const values = [account.username, hashValue];
+    db.run(query, values, function (error) {
+      if (error) {
+        response.status(500).end();
+      } else {
+        const id = this.lastID;
+        response.setHeader("Location", "/accounts/" + id);
+        response.status(201).end();
+      }
+    });
+  }
 });
 
 //updateAccountById
 app.put("/v1/accounts/:id", function (request, response) {
   const id = parseInt(request.params.id);
-  const updatedAccount = request.body; //{username: XY, password: XYZ}
-  const query = "UPDATE accounts SET username = ?, password = ? WHERE id = ?";
-  const values = [updatedAccount.username, updatedAccount.password, id];
-  db.run(query, values, function (error) {
-    if (error) {
-      response.status(500).end();
-    } else {
-      response.status(204).end();
-    }
-  });
+  if (id != request.id) {
+    response.status(400).json({ error: "unauthorized_request" });
+  } else {
+    const updatedAccount = request.body; //{username: XY, password: XYZ}
+    const query = "UPDATE accounts SET username = ?, password = ? WHERE id = ?";
+    const values = [updatedAccount.username, updatedAccount.password, id];
+    db.run(query, values, function (error) {
+      if (error) {
+        response.status(500).end();
+      } else {
+        response.status(204).end();
+      }
+    });
+  }
 });
 
 //deleteAccountById
 app.delete("/v1/accounts/:id", function (request, response) {
   const id = parseInt(request.params.id);
-  const query = "DELETE FROM accounts WHERE id = ?";
-  const values = [id];
-  db.run(query, values, function (error) {
-    if (error) {
-      response.status(500).end();
-    } else {
-      response.status(204).end();
-    }
-  });
+  if (id != request.id) {
+    response.status(400).json({ error: "unauthorized_request" });
+  } else {
+    const query = "DELETE FROM accounts WHERE id = ?";
+    const values = [id];
+    db.run(query, values, function (error) {
+      if (error) {
+        response.status(500).end();
+      } else {
+        response.status(204).end();
+      }
+    });
+  }
 });
 
 //createCollection
 app.post("/v1/collections", function (request, response) {
   const collection = request.body; //{title: XY, description: XYZ, accountId: XY}
-  const query = "INSERT INTO collections (title, description, accountId) VALUES (?, ?, ?)";
-  const values = [collection.title, collection.description, collection.accountId];
-  db.run(query, values, function (error) {
-    if (error) {
-      response.status(500).end();
-    } else {
-      const id = this.lastID;
-      response.setHeader("Location", "/collections/" + id);
-      response.status(201).end();
-    }
-  });
+  if (collection.accountId != request.id) {
+    response.status(400).json({ error: "unauthorized_request" });
+  } else {
+    const query =
+      "INSERT INTO collections (title, description, accountId) VALUES (?, ?, ?)";
+    const values = [
+      collection.title,
+      collection.description,
+      collection.accountId,
+    ];
+    db.run(query, values, function (error) {
+      if (error) {
+        response.status(500).end();
+      } else {
+        const id = this.lastID;
+        response.setHeader("Location", "/collections/" + id);
+        response.status(201).end();
+        fs.mkdirSync("./assets/" + id);
+      }
+    });
+  }
 });
 
 //getCollectionsByAccountId
 app.get("/v1/collections", function (request, response) {
   const id = request.query.accountId; //collections?accountId=1
-  const query = "SELECT * FROM collections WHERE accountId = ?";
-  const values = [id];
-  db.all(query, values, function (error, collections) {
-    if (error) {
-      // If something went wrong, send back status code 500.
-      response.status(500).end();
-    } else {
-      // Otherwise, send back the collections in JSON format.
-      response.status(200).json(collections);
-    }
-  });
+  if (id != request.id) {
+    response.status(400).json({ error: "unauthorized_request" });
+  } else {
+    const query = "SELECT * FROM collections WHERE accountId = ?";
+    const values = [id];
+    db.all(query, values, function (error, collections) {
+      if (error) {
+        // If something went wrong, send back status code 500.
+        response.status(500).end();
+      } else {
+        // Otherwise, send back the collections in JSON format.
+        response.status(200).json(collections);
+      }
+    });
+  }
 });
 
 //updateCollectionById
 app.put("/v1/collections/:id", function (request, response) {
   const id = parseInt(request.params.id);
-  const updatedCollection = request.body; //{title: XY, description: XYZ}
-  const query = "UPDATE collections SET title = ?, description = ? WHERE id = ?";
-  const values = [updatedCollection.title, updatedCollection.description];
-  db.run(query, values, function (error) {
+  let query = "SELECT * FROM collections WHERE id = ?";
+  let values = [id];
+  db.get(query, values, function (error, collection) {
     if (error) {
       response.status(500).end();
+    } else if (collection.accountId != request.id) {
+      response.status(400).json({ error: "unauthorized_request" });
     } else {
-      response.status(204).end();
+      const updatedCollection = request.body; //{title: XY, description: XYZ}
+      query = "UPDATE collections SET title = ?, description = ? WHERE id = ?";
+      values = [updatedCollection.title, updatedCollection.description, id];
+      db.run(query, values, function (error) {
+        if (error) {
+          response.status(500).end();
+        } else {
+          response.status(204).end();
+        }
+      });
     }
   });
 });
@@ -159,45 +248,90 @@ app.put("/v1/collections/:id", function (request, response) {
 //deleteCollectionById
 app.delete("/v1/collections/:id", function (request, response) {
   const id = parseInt(request.params.id);
-  const query = "DELETE FROM collections WHERE id = ?";
-  const values = [id];
-  db.run(query, values, function (error) {
+  let query = "SELECT * FROM collections WHERE id = ?";
+  let values = [id];
+  db.get(query, values, function (error, collection) {
     if (error) {
       response.status(500).end();
+    } else if (collection.accountId != request.id) {
+      response.status(400).json({ error: "unauthorized_request" });
     } else {
-      response.status(204).end();
+      query = "DELETE FROM collections WHERE id = ?";
+      values = [id];
+      db.run(query, values, function (error) {
+        if (error) {
+          response.status(500).end();
+        } else {
+          response.status(204).end();
+          fs.rmdirSync("./assets/" + id);
+        }
+      });
     }
   });
 });
 
 //createImage
 app.post("/v1/images", function (request, response) {
-  const image = request.body; //{location: XY, collectionId: XY}
-  const query = "INSERT INTO images (location, collectionId) VALUES (?, ?)";
-  const values = [image.location, image.collectionId];
-  db.run(query, values, function (error) {
+  const image = request.body; //{url: XY, collectionId: XY}
+  let query = "SELECT * FROM collections WHERE id = ?";
+  let values = [image.collectionId];
+  db.get(query, values, function (error, collection) {
     if (error) {
       response.status(500).end();
+    } else if (collection.accountId != request.id) {
+      response.status(400).json({ error: "unauthorized_request" });
     } else {
-      const id = this.lastID;
-      response.setHeader("Location", "/images/" + id);
-      response.status(201).end();
+      const fileName = image.url.substr(image.url.lastIndexOf("/") + 1);
+
+      const options = {
+        url: image.url,
+        dest:
+          "./assets/" + image.collectionId + "/" + Date.now() + "_" + fileName,
+      };
+
+      query = "INSERT INTO images (location, collectionId) VALUES (?, ?)";
+      values = [options.dest, image.collectionId];
+      db.run(query, values, function (error) {
+        if (error) {
+          response.status(500).end();
+        } else {
+          download
+            .image(options)
+            .then(({ filename }) => {
+              console.log("Saved to", filename);
+            })
+            .catch((err) => console.error(err));
+          const id = this.lastID;
+          response.setHeader("Location", "/images/" + id);
+          response.status(201).end();
+        }
+      });
     }
   });
 });
 
 //getImagesByCollectionId
 app.get("/v1/images", function (request, response) {
-  const id = request.query.accountId; //images?collectionId=1
-  const query = "SELECT * FROM images WHERE collectionId = ?";
-  const values = [id];
-  db.all(query, values, function (error, images) {
+  const id = request.query.collectionId; //images?collectionId=1
+  let query = "SELECT * FROM collections WHERE id = ?";
+  let values = [id];
+  db.get(query, values, function (error, collection) {
     if (error) {
-      // If something went wrong, send back status code 500.
       response.status(500).end();
+    } else if (collection.accountId != request.id) {
+      response.status(400).json({ error: "unauthorized_request" });
     } else {
-      // Otherwise, send back the images in JSON format.
-      response.status(200).json(images);
+      query = "SELECT * FROM images WHERE collectionId = ?";
+      values = [id];
+      db.all(query, values, function (error, images) {
+        if (error) {
+          // If something went wrong, send back status code 500.
+          response.status(500).end();
+        } else {
+          // Otherwise, send back the images in JSON format.
+          response.status(200).json(images);
+        }
+      });
     }
   });
 });
@@ -205,15 +339,82 @@ app.get("/v1/images", function (request, response) {
 //deleteImageById
 app.delete("/v1/images/:id", function (request, response) {
   const id = parseInt(request.params.id);
-  const query = "DELETE FROM images WHERE id = ?";
-  const values = [id];
-  db.run(query, values, function (error) {
+  let query = "SELECT * FROM images WHERE id = ?";
+  let values = [id];
+  db.get(query, values, function (error, image) {
     if (error) {
       response.status(500).end();
     } else {
-      response.status(204).end();
+      query = "SELECT * FROM collections WHERE id = ?";
+      values = [image.collectionId];
+      db.get(query, values, function (error, collection) {
+        if (error) {
+          response.status(500).end();
+        } else if (collection.accountId != request.id) {
+          response.status(400).json({ error: "unauthorized_request" });
+        } else {
+          query = "DELETE FROM images WHERE id = ?";
+          values = [id];
+          db.run(query, values, function (error) {
+            if (error) {
+              response.status(500).end();
+            } else {
+              response.status(204).end();
+              fs.unlinkSync(image.location);
+            }
+          });
+        }
+      });
     }
   });
+});
+
+//signIn
+app.post("/v1/tokens", function (request, response) {
+  if (request.clientId != client_id || request.clientSecret != client_secret) {
+    response.status(400).json({ error: "invalid_client_credentials" });
+  } else {
+    const requestGrantType = request.body.grant_type;
+    const requestUsername = request.body.username;
+    const requestPassword = request.body.password;
+
+    const query = "SELECT * FROM accounts WHERE username = ?";
+    const values = [requestUsername];
+
+    if (requestGrantType != "password") {
+      response.status(400).json({ error: "unsupported_grant_type" });
+    } else if (requestUsername == null || requestPassword == null) {
+      response.status(400).json({ error: "invalid_request" });
+    } else {
+      db.get(query, values, function (error, account) {
+        if (error || account == null) {
+          response.status(400).json({ error: "invalid_grant" });
+        } else if (bcrypt.compareSync(requestPassword, account.password)) {
+          const dataToPutInAccessToken = {
+            id: account.id,
+          };
+          const accessToken = jwt.sign(dataToPutInAccessToken, jwtSecret);
+          const dateNow = Math.floor(Date.now() / 1000);
+          const dataToPutInIdToken = {
+            iss: "http://localhost:3000/",
+            sub: account.id,
+            aud: "7x!A%D*F-JaNdRgUkXp2s5v8y/B?E(H+",
+            exp: dateNow + 86400,
+            iat: dateNow,
+            preferred_username: account.username,
+          };
+          const idToken = jwt.sign(dataToPutInIdToken, idSecret);
+          response.status(200).json({
+            access_token: accessToken,
+            token_type: "Bearer",
+            id_token: idToken,
+          });
+        } else {
+          response.status(400).json({ error: "invalid_grant" });
+        }
+      });
+    }
+  }
 });
 
 app.listen(3000, () => {
