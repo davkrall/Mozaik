@@ -11,8 +11,11 @@ module.exports = {
       user: {
         isSignedIn: false,
         sessionUserId: "",
-        sessionUsername: "",
+        sessionUsername: ""
       },
+      parameters: {
+        collectionList: ""
+      }
     };
   },
 };

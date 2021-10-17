@@ -19,14 +19,15 @@
           class="w-28 h-28"
         />
         <div>
-          <p class="font-display text-lg">Andrea Johansson</p>
-          <p class="font-body font-light text-sm">Product designer</p>
+          <p class="font-display text-lg">{{ this.user.sessionUsername }}</p>
         </div>
       </div>
 
       <div class="container flex justify-between items-center">
         <div>
-          <p class="font-display text-lg">Your collection name</p>
+          <p class="font-display text-lg">
+            {{ currentTitle }}
+          </p>
         </div>
         <div>
           <button class="btn-outline-icon inline-flex items-center">
@@ -46,10 +47,13 @@
               <line x1="8" y1="12" x2="16" y2="12"></line>
             </svg>
 
-            <span> Delete collection</span>
+            <span @click="deleteCollectionById()"> Delete collection</span>
           </button>
 
-          <button class="btn-purple-icon inline-flex items-center">
+          <button
+            @click="addNewImage()"
+            class="btn-purple-icon inline-flex items-center"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -72,9 +76,11 @@
         </div>
       </div>
 
-      <div class="container mt-5">
-        <div class="w-1/4 h-80 bg-grey rounded-sm"></div>
-        <p class="font-display text-base mt-3 hover:text-purple">Remove</p>
+      <div v-for="image in imageList" :key="image.location">
+        <div class="container mt-5">
+          <img :src="image.location" alt="image" />
+          <p class="font-display text-base mt-3 hover:text-purple">Remove</p>
+        </div>
       </div>
     </main>
 
@@ -100,15 +106,91 @@
         </p>
       </div>
     </footer>
-
-    <!--  <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>-->
-    <!--  <router-view/> -->
   </div>
 </template>
 
-<style scoped>
-.offset {
-  text-underline-offset: 3em;
-}
-</style>
+<script>
+const client = require("../mozaik-client");
+
+export default {
+  props: ["user"],
+
+  data() {
+    return {
+      imageList: [],
+      collectionId: this.$route.params.id,
+      currentTitle: "",
+    };
+  },
+
+  methods: {
+    getImageList() {
+      var accountId = this.user.sessionUserId;
+
+      if (!accountId) {
+        alert("You are not logged in!");
+      }
+
+      client.getImagesByCollectionId(this.collectionId, (errors, images) => {
+        if (errors.length == 0) {
+          this.imageList = images;
+          //alert("Images retrieved!");
+          console.log(collections);
+        } else {
+          alert(errors);
+        }
+      });
+    },
+
+    addNewImage() {
+      var imgUrl = "";
+      imgUrl = prompt("Paste your image Url below!", "");
+
+      const img = {
+        url: imgUrl,
+        collectionId: this.$route.params.id,
+      };
+
+      if (imgUrl == "") {
+        alert("Provide an image URL!");
+      } else {
+        client.createImage(img, (errors, id) => {
+          if (errors.length == 0) {
+            //alert("Image added!");
+            this.getImageList();
+          } else {
+            alert(errors);
+          }
+        });
+      }
+    },
+
+    deleteCollectionById() {
+      if (confirm("Are you sure you want to delete this collection?")) {
+        client.deleteCollectionById(this.collectionId, (errors) => {
+          if (errors.length == 0) {
+            //alert("Collection deleted!");
+            this.$router.push("/home");
+          } else {
+            alert(errors);
+          }
+        });
+      }
+    },
+
+    getCurrentTitle() {
+      var i = 0;
+      for (i = 0; i < this.user.collectionList.length; i++) {
+        if (this.user.collectionList[i].id == this.collectionId) {
+          this.currentTitle = this.user.collectionList[i].title;
+        }
+      }
+    },
+  },
+
+  created() {
+    this.getImageList();
+    this.getCurrentTitle();
+  },
+};
+</script>

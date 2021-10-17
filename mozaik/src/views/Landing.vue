@@ -10,9 +10,12 @@
     <header class="container flex justify-between items-center my-10">
       <h1 class="text-4xl text-normal font-display">Mozaik</h1>
       <nav class="flex">
-        <router-link :to="'/signin/'"><button class="btn-outline justify-end">Sign in</button></router-link>
-        <router-link :to="'/registration/'"><button class="btn-purple">Register</button></router-link>
-
+        <router-link :to="'/signin/'"
+          ><button class="btn-outline justify-end">Sign in</button></router-link
+        >
+        <router-link :to="'/registration/'"
+          ><button class="btn-purple">Register</button></router-link
+        >
       </nav>
     </header>
 
@@ -97,6 +100,3 @@ export default {
   },
 };
 </script>
-
-<style>
-</style>

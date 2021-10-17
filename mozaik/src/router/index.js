@@ -8,6 +8,7 @@ import Home from '../views/Home.vue'
 import Favourites from '../views/Favourites.vue'
 import Collection from '../views/Collection.vue'
 
+
 Vue.use(VueRouter)
 
 const routes = [
@@ -48,22 +49,10 @@ const routes = [
   },
 
   {
-    path: '/collection',
+    path: '/collection/:id',
     name: 'Collection',
     component: Collection
   },
-
-
-  {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: function () {
-      return import(/* webpackChunkName: "about" */ '../views/About.vue')
-    }
-  }
 ]
 
 const router = new VueRouter({

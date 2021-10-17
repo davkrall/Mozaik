@@ -28,8 +28,7 @@
 
       <div>
         <router-link :to="'/registration'"><button class="btn-outline">Register</button></router-link>
-        <router-link :to="'/home'"><button class="btn-purple" @click="signUserIn">Sign in</button></router-link>
-        
+       <button class="btn-purple" @click="signUserIn">Sign in</button>
       </div>
       </div>
 
@@ -65,7 +64,7 @@ export default {
   props: ["user"],
   data() {
     return {
-            signInAccount: {
+        signInAccount: {
         signInUsername: "",
         signInPassword: "",
       },
@@ -80,7 +79,9 @@ export default {
         if (errors.length == 0) {
           this.user.isSignedIn = true;
           this.user.sessionUserId = account.id;
+          console.log(account.id);
           this.user.sessionUsername = account.username;
+          this.$router.push("/home");
         } else {
           alert(errors);
         }

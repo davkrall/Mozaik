@@ -43,30 +43,21 @@
             class="input"
             v-model="signUpAccount.signUpUsername"
           /><br />
-          <label for="password" class=" font-display text-base pl-4"
+          <label for="password" class="font-display text-base pl-4"
             >Password</label
           ><br />
           <input
             id="password"
             type="password"
-            placeholder="12345678"
+            placeholder="Must include 8 characters"
             class="input"
             v-model="signUpAccount.signUpPassword"
           /><br />
-          <label for="position" class="font-display text-base pl-4"
-            >Work position</label
-          ><br />
-          <input
-            id="position"
-            type="text"
-            placeholder="Example: Product designer"
-            class="input mb-10"
-          /><br />
         </form>
 
-        <p class="mb-3 mr-med">Profile picture</p>
+        <!--<p class="mb-3 mr-med">Profile picture</p>
 
-        <button class="btn-outline-icon inline-flex items-center mb-10">
+         <button class="btn-outline-icon inline-flex items-center mb-10">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -84,29 +75,28 @@
             <line x1="8" y1="12" x2="16" y2="12"></line>
           </svg>
 
-          <span>Upload profile picture</span>
-        </button>
+           <span>Upload profile picture</span>
+        </button>-->
 
-        <div>
+        <div class="mt-6">
           <router-link :to="'/signin'"
             ><button class="btn-outline">Sign in</button></router-link
           >
-          <router-link :to="'/signin2'"
-            ><button class="btn-purple" @click="createUser">Register</button></router-link
-          >
+
+          <button class="btn-purple" @click="createUser">Register</button>
         </div>
       </div>
 
       <footer>
         <div
           class="
-          container
-          flex
-          justify-between
-          items-center
-          border-t border-black
-          my-10
-        "
+            container
+            flex
+            justify-between
+            items-center
+            border-t border-black
+            my-10
+          "
         >
           <p class="text-2xl text-normal font-display my-8">Mozaik</p>
           <p class="text-base text-normal font-display my-8">
@@ -140,15 +130,20 @@ export default {
         password: this.signUpAccount.signUpPassword,
       };
 
-      client.createAccount(account, (errors, id) => {
-        if (errors.length == 0) {
-          this.signUpAccount.signUpUsername = "";
-          this.signUpAccount.signUpPassword = "";
-          alert("Account created!");
-        } else {
-          alert(errors);
-        }
-      });
+      if (account.username == "" || account.password == "") {
+        alert("Fill in all the input fields!");
+      } else {
+        client.createAccount(account, (errors, id) => {
+          if (errors.length == 0) {
+            this.signUpAccount.signUpUsername = "";
+            this.signUpAccount.signUpPassword = "";
+            //alert("Account created!");
+            this.$router.push("/signin2");
+          } else {
+            alert(errors);
+          }
+        });
+      }
     },
   },
 };
