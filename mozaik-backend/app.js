@@ -194,7 +194,7 @@ app.post("/v1/collections", function (request, response) {
         const id = this.lastID;
         response.setHeader("Location", "/collections/" + id);
         response.status(201).end();
-        fs.mkdirSync("./assets/" + id);
+        fs.mkdirSync("../mozaik/public/images/" + id);
       }
     });
   }
@@ -263,7 +263,7 @@ app.delete("/v1/collections/:id", function (request, response) {
           response.status(500).end();
         } else {
           response.status(204).end();
-          fs.rmdirSync("./assets/" + id);
+          fs.rmdirSync("../mozaik/public/images/" + id);
         }
       });
     }
@@ -286,11 +286,13 @@ app.post("/v1/images", function (request, response) {
       const options = {
         url: image.url,
         dest:
-          "./assets/" + image.collectionId + "/" + Date.now() + "_" + fileName,
+          "../mozaik/public/images/" + image.collectionId + "/" + Date.now() + "_" + fileName,
       };
 
+      const location = options.dest;
+
       query = "INSERT INTO images (location, collectionId) VALUES (?, ?)";
-      values = [options.dest, image.collectionId];
+      values = [location.substr(24), image.collectionId];
       db.run(query, values, function (error) {
         if (error) {
           response.status(500).end();
@@ -360,7 +362,7 @@ app.delete("/v1/images/:id", function (request, response) {
               response.status(500).end();
             } else {
               response.status(204).end();
-              fs.unlinkSync(image.location);
+              fs.unlinkSync("../mozaik/public/images/" + image.location);
             }
           });
         }

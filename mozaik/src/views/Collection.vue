@@ -78,7 +78,10 @@
 
       <div v-for="image in imageList" :key="image.location">
         <div class="container mt-5">
-          <img :src="image.location" alt="image" />
+          <img
+            :src="'/images/' + image.location"
+            alt="image"
+          />
           <p class="font-display text-base mt-3 hover:text-purple">Remove</p>
         </div>
       </div>
@@ -135,7 +138,7 @@ export default {
         if (errors.length == 0) {
           this.imageList = images;
           //alert("Images retrieved!");
-          console.log(collections);
+          console.log(this.imageList);
         } else {
           alert(errors);
         }
