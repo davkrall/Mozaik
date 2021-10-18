@@ -11,11 +11,11 @@
 
     <main>
       <div class="flex mt-20 mb-8">
-        <img
+       <!--  <img
           src="../assets/test-profile-pic.png"
           alt="profile-pic"
           class="w-28 h-28"
-        />
+        /> -->
         <div>
           <p class="font-display text-lg">Andrea Johansson</p>
           <p class="font-body font-light text-sm">Product designer</p>

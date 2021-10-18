@@ -30,7 +30,7 @@
           <input
             id="username"
             type="text"
-            placeholder="Example: Katiedesign"
+            placeholder="Example: Katie"
             class="input"
             v-model="signInAccount.signInUsername"
           /><br />
@@ -40,7 +40,7 @@
           <input
             id="password"
             type="password"
-            placeholder="Must include 8 characters"
+            placeholder="Use at least 6 characters"
             class="input mb-14"
             v-model="signInAccount.signInPassword"
           /><br />

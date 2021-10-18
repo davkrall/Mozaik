@@ -21,9 +21,9 @@
       <p class="text-3xl font-display mb-12 text-purple">Sign in quick and easy</p>
       <form>
       <label for="username" class="font-display text-base pl-4">Username</label><br>
-      <input id="username" type="text" placeholder="Example: Katiedesign" class="input" v-model="signInAccount.signInUsername"><br>
+      <input id="username" type="text" placeholder="Example: Katie" class="input" v-model="signInAccount.signInUsername"><br>
        <label for="password"  class=" font-display text-base pl-4">Password</label><br>
-       <input id="password" type="password" placeholder="Must include 8 characters" class="input mb-14" v-model="signInAccount.signInPassword"><br>
+       <input id="password" type="password" placeholder="Use at least 6 characters" class="input mb-14" v-model="signInAccount.signInPassword"><br>
       </form>
 
       <div>

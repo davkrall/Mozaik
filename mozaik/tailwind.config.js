@@ -24,6 +24,13 @@ module.exports = {
       med: '120px',
     },
 
+    height: {
+
+      lg: '500px'
+
+
+    },
+
     variants: {
       fill: ['hover', 'focus'], // this line does the trick
     },
