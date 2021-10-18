@@ -5,7 +5,6 @@ import Registration from '../views/Registration.vue'
 import SignIn from '../views/SignIn.vue'
 import SignIn2 from '../views/SignIn2.vue'
 import Home from '../views/Home.vue'
-import Favourites from '../views/Favourites.vue'
 import Collection from '../views/Collection.vue'
 
 
@@ -40,12 +39,6 @@ const routes = [
     path: '/home',
     name: 'Home',
     component: Home
-  },
-
-  {
-    path: '/favourites',
-    name: 'Favourites',
-    component: Favourites
   },
 
   {

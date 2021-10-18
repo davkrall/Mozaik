@@ -34,13 +34,6 @@
               collectionList.length
             }}</span></router-link
           >
-          <!-- 
-          <router-link
-            to="/favourites"
-            class="font-display relative mr-9 text-darkgrey"
-            >Favourites
-            <span class="text-sm absolute -right-3.5 -top-3">0</span>
-          </router-link> -->
         </div>
 
         <button
@@ -130,8 +123,8 @@
       </div>
       </div>
 
-      <!-- for loop for collections -->
-      <div class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-5">
+      <!-- looping the existing collections -->
+      <div class="grid sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6 mt-5">
         <div v-for="collection in collectionList" :key="collection.id">
           <div class="h-24 bg-grey rounded hover:text-purple">
             <div class="p-5">
@@ -140,7 +133,6 @@
                   {{ collection.title }}
                 </p></router-link
               >
-              <p class="font-body text-sm font-light">0 items</p>
             </div>
           </div>
         </div>
@@ -185,8 +177,8 @@ export default {
   },
 
   methods: {
+
     createNewCollection() {
-      //console.log(this.user.sessionUserId);
 
       var collectionTitle = "";
       collectionTitle = prompt("Give a title to your new collection!", "");
@@ -202,7 +194,6 @@ export default {
       } else {
         client.createCollection(collection, (errors, id) => {
           if (errors.length == 0) {
-            //alert("Collection created!");
             this.getCollectionList();
           } else {
             alert(errors);
@@ -211,17 +202,14 @@ export default {
       }
     },
 
-    //sign out without backend action
     signOut() {
       this.user.isSignedIn = false;
       this.user.sessionUserId = "";
       this.user.sessionUsername = "";
-      //console.log("done");
       this.$router.push("/");
     },
 
     getCollectionList() {
-      //alert(this.user.sessionUserId);
 
       var accountId = this.user.sessionUserId;
 
@@ -233,19 +221,16 @@ export default {
         if (errors.length == 0) {
           this.collectionList = collections;
           this.user.collectionList = collections;
-          //alert("Collection retrieved!");
-          console.log(collections);
         } else {
           alert(errors);
         }
       });
     },
-
-    
   },
 
   created() {
     this.getCollectionList();
   },
+
 };
 </script>

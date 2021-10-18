@@ -37,7 +37,7 @@
         </defs>
         </svg>
 
-        <p class="my-3">or</p>
+        <p class="mt-3 mb-6">Or create an account below:</p>
 
         <form>
           <label for="username" class="font-display text-base pl-4"
@@ -62,34 +62,8 @@
           /><br />
         </form>
 
-        <!--<p class="mb-3 mr-med">Profile picture</p>
-
-         <button class="btn-outline-icon inline-flex items-center mb-10">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="12 -2 30 30"
-            fill="none"
-            stroke="#000000"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="overflow-visible stroke-current"
-          >
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="8" x2="12" y2="16"></line>
-            <line x1="8" y1="12" x2="16" y2="12"></line>
-          </svg>
-
-           <span>Upload profile picture</span>
-        </button>-->
-
         <div class="mt-6">
-          <router-link :to="'/signin'"
-            ><button class="btn-outline">Sign in</button></router-link
-          >
-
+          <router-link :to="'/signin'"><button class="btn-outline">Sign in</button></router-link>
           <button class="btn-purple" @click="createUser">Register</button>
         </div>
       </div>
@@ -122,6 +96,7 @@
 const client = require("../mozaik-client");
 
 export default {
+
   data() {
     return {
       signUpAccount: {
@@ -130,7 +105,9 @@ export default {
       },
     };
   },
+  
   methods: {
+
     createUser() {
       const account = {
         username: this.signUpAccount.signUpUsername,
@@ -144,7 +121,6 @@ export default {
           if (errors.length == 0) {
             this.signUpAccount.signUpUsername = "";
             this.signUpAccount.signUpPassword = "";
-            //alert("Account created!");
             this.$router.push("/signin2");
           } else {
             alert(errors);

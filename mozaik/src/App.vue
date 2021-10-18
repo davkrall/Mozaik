@@ -14,8 +14,8 @@ module.exports = {
         sessionUsername: ""
       },
       parameters: {
-        collectionList: ""
-      }
+        collectionList: "",
+      },
     };
   },
 };

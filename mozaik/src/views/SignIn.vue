@@ -75,18 +75,20 @@ export default {
       const username = this.signInAccount.signInUsername;
       const password = this.signInAccount.signInPassword;
 
+       if (username == "" || password == "") {
+        alert("Fill in all required fields!");
+      } else {
       client.signIn(username, password, (errors, account) => {
         if (errors.length == 0) {
           this.user.isSignedIn = true;
           this.user.sessionUserId = account.id;
-          console.log(account.id);
           this.user.sessionUsername = account.username;
           this.$router.push("/home");
         } else {
           alert(errors);
         }
       });
-    },
+    }},
   },
 };
 </script>
