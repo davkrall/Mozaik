@@ -285,35 +285,33 @@ export default {
       }
     },
 
-      editCollectionName() {
-    var updatedCollectionName = "";
-    updatedCollectionName = prompt("Edit your collection title below!", "");
+    editCollectionName() {
+      var updatedCollectionName = "";
+      updatedCollectionName = prompt("Edit your collection title below!", "");
 
-    const updatedCollection = {
-      title: updatedCollectionName,
-      description: "",
-    };
+      const updatedCollection = {
+        title: updatedCollectionName,
+        description: "",
+      };
 
-    if (updatedCollectionName == "") {
-      alert("Provide a new collection title!");
-    } else {
-      client.updateCollectionById(
-        this.collectionId,
-        updatedCollection,
-        (errors) => {
-          if (errors.length == 0) {
-            alert("Title updated!");
-            this.getCurrentTitle();
-          } else {
-            alert(errors);
+      if (updatedCollectionName == "") {
+        alert("Provide a new collection title!");
+      } else {
+        client.updateCollectionById(
+          this.collectionId,
+          updatedCollection,
+          (errors) => {
+            if (errors.length == 0) {
+              alert("Title updated!");
+              this.getCurrentTitle();
+            } else {
+              alert(errors);
+            }
           }
-        }
-      );
-    }
+        );
+      }
+    },
   },
-  },
-
-
 
   created() {
     this.getImageList();

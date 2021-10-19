@@ -107,15 +107,25 @@ export default {
     },
 
     updateAccount() {
+      var accountId = this.user.sessionUserId;
       var updatedUsername = "";
       updatedUsername = prompt("Update your username below!", "");
 
-      if (updatedUsername == "") {
-        alert("Provide a new username!");
+      var updatedPassword = "";
+      updatedPassword = prompt("Update your password below!", "");
+
+      const updatedUser = {
+        username: updatedUsername,
+        password: updatedPassword,
+      };
+
+      if (updatedUsername == "" || updatedPassword == "") {
+        alert("Fill in both data!");
       } else {
-        client.updateAccountById(updatedUsername, (errors, account) => {
+        client.updateAccountById(accountId, updatedUser, (errors, account) => {
           if (errors.length == 0) {
             alert("Account updated!");
+            this.user.sessionUsername = updatedUser.username
           } else {
             alert(errors);
           }
