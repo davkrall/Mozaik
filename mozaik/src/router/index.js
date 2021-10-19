@@ -6,6 +6,7 @@ import SignIn from '../views/SignIn.vue'
 import SignIn2 from '../views/SignIn2.vue'
 import Home from '../views/Home.vue'
 import Collection from '../views/Collection.vue'
+import Account from '../views/Account.vue'
 
 
 Vue.use(VueRouter)
@@ -45,6 +46,12 @@ const routes = [
     path: '/collection/:id',
     name: 'Collection',
     component: Collection
+  },
+
+  {
+    path: '/account',
+    name: 'Account',
+    component: Account
   },
 ]
 

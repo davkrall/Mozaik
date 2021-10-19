@@ -32,6 +32,11 @@
 
         <div>
           <p class="font-display text-lg">{{ this.user.sessionUsername }}</p>
+          <router-link :to="'/account/'"
+            ><p class="font-copy font-light text-sm mt-1 hover:text-purple">
+              Manage account
+            </p></router-link
+          >
         </div>
       </div>
 
@@ -291,13 +296,16 @@
           class="grid sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6 mt-5"
         >
           <div v-for="collection in collectionList" :key="collection.id">
-            <div class="h-24 bg-grey rounded hover:text-purple">
+            <div class="h-24 bg-grey rounded">
               <div class="p-5">
-                <router-link :to="'/collection/' + collection.id">
-                  <p class="font-display text-lg">
-                    {{ collection.title }}
-                  </p></router-link
+                <router-link
+                  class="flex justify-between"
+                  :to="'/collection/' + collection.id"
                 >
+                  <p class="font-display text-lg hover:text-purple">
+                    {{ collection.title }}
+                  </p>
+                </router-link>
               </div>
             </div>
           </div>
