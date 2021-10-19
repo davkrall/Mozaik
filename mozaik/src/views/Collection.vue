@@ -141,6 +141,7 @@
           </div>
         </div>
 
+        <!-- displaying images inside collection using a for loop --> 
         <div
           class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-5"
         >
@@ -193,14 +194,12 @@ export default {
     return {
       imageList: [],
       collectionId: this.$route.params.id,
-      currentTitle: ""
+      currentTitle: "",
     };
   },
 
   methods: {
-
     getImageList() {
-
       var accountId = this.user.sessionUserId;
 
       if (!accountId) {
@@ -217,7 +216,6 @@ export default {
     },
 
     addNewImage() {
-
       var imgUrl = "";
       imgUrl = prompt("Paste your image Url below!", "");
 
@@ -277,6 +275,5 @@ export default {
     this.getImageList();
     this.getCurrentTitle();
   },
-  
 };
 </script>

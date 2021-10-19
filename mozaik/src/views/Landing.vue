@@ -32,7 +32,7 @@
       </div>
 
       <div class="w-full content-center my-28">
-        <img class="relative" src="../assets/cover-image.png" alt="img6" />
+        <img class="relative" src="../assets/cover-image.png" alt="coverimage" />
       </div>
     </main>
 

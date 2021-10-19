@@ -1,5 +1,5 @@
 <template>
-  <router-view :user="user"/>
+  <router-view :user="user" />
 </template>
 
 <script>
@@ -11,7 +11,7 @@ module.exports = {
       user: {
         isSignedIn: false,
         sessionUserId: "",
-        sessionUsername: ""
+        sessionUsername: "",
       },
       parameters: {
         collectionList: "",

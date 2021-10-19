@@ -80,6 +80,7 @@ const client = require("../mozaik-client");
 
 export default {
   props: ["user"],
+
   data() {
     return {
       signInAccount: {
@@ -88,6 +89,7 @@ export default {
       },
     };
   },
+  
   methods: {
     signUserIn() {
       const username = this.signInAccount.signInUsername;
@@ -96,17 +98,18 @@ export default {
       if (username == "" || password == "") {
         alert("Fill in all required fields!");
       } else {
-      client.signIn(username, password, (errors, account) => {
-        if (errors.length == 0) {
-          this.user.isSignedIn = true;
-          this.user.sessionUserId = account.id;
-          this.user.sessionUsername = account.username;
-          this.$router.push("/home");
-        } else {
-          alert(errors);
-        }
-      });
-    }},
+        client.signIn(username, password, (errors, account) => {
+          if (errors.length == 0) {
+            this.user.isSignedIn = true;
+            this.user.sessionUserId = account.id;
+            this.user.sessionUsername = account.username;
+            this.$router.push("/home");
+          } else {
+            alert(errors);
+          }
+        });
+      }
+    },
   },
 };
 </script>
