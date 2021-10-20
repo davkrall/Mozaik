@@ -65,7 +65,7 @@
 
 <script>
 export default {
-  name: "MOzaik",
+  name: "Mozaik",
   created() {
     document.title = "Mozaik";
   },

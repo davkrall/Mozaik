@@ -29,6 +29,11 @@
         </svg>
         <div>
           <p class="font-display text-lg">{{ this.user.sessionUsername }}</p>
+          <router-link :to="'/account/'"
+            ><p class="font-copy font-light text-sm mt-1 hover:text-purple">
+              Manage account
+            </p></router-link
+          >
         </div>
       </div>
 
@@ -302,8 +307,8 @@ export default {
           updatedCollection,
           (errors) => {
             if (errors.length == 0) {
+              this.currentTitle = updatedCollectionName;
               alert("Title updated!");
-              this.getCurrentTitle();
             } else {
               alert(errors);
             }
