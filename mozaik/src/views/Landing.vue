@@ -32,7 +32,11 @@
       </div>
 
       <div class="w-full content-center my-28">
-        <img class="relative" src="../assets/cover-image.png" alt="coverimage" />
+        <img
+          class="relative"
+          src="../assets/cover-image.png"
+          alt="coverimage"
+        />
       </div>
     </main>
 
@@ -58,3 +62,12 @@
     </footer>
   </div>
 </template>
+
+<script>
+export default {
+  name: "MOzaik",
+  created() {
+    document.title = "Mozaik";
+  },
+};
+</script>
