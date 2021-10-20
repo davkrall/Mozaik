@@ -139,7 +139,7 @@ export default {
           if (errors.length == 0) {
             this.signUpAccount.signUpUsername = "";
             this.signUpAccount.signUpPassword = "";
-            this.$router.push("/signin2");
+            this.$router.push("/signin");
           } else {
             alert(errors);
           }

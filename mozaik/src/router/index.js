@@ -3,7 +3,6 @@ import VueRouter from 'vue-router'
 import Landing from '../views/Landing.vue'
 import Registration from '../views/Registration.vue'
 import SignIn from '../views/SignIn.vue'
-import SignIn2 from '../views/SignIn2.vue'
 import Home from '../views/Home.vue'
 import Collection from '../views/Collection.vue'
 import Account from '../views/Account.vue'
@@ -28,12 +27,6 @@ const routes = [
     path: '/signin',
     name: 'SignIn',
     component: SignIn
-  },
-
-  {
-    path: '/signin2',
-    name: 'SignIn2',
-    component: SignIn2
   },
 
   {
