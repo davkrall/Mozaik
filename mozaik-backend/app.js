@@ -5,6 +5,7 @@ const base64 = require("base-64");
 const download = require("image-downloader");
 const fs = require("fs");
 const bcrypt = require("bcryptjs");
+const yaml = require("yaml");
 
 const jwtSecret = "cQfTjWnZr4u7w!z%C*F-JaNdRgUkXp2s";
 const idSecret = "8y/B?E(H+KbPeShVmYq3t6w9z$C&F)J@";
@@ -50,12 +51,27 @@ CREATE TABLE IF NOT EXISTS images(
 `);
 
 const app = express();
+app.use(
+  express.raw({
+    type: "application/yaml",
+  })
+);
 app.use(express.json());
 app.use(
   express.urlencoded({
     extended: false,
   })
 );
+
+const sendResponse = function (request, response, status, resource) {
+  if (request.accept == "application/json") {
+    response.status(status).json(resource);
+  } else if (request.accept == "application/yaml") {
+    response.status(status).end(yaml.stringify(resource));
+  } else {
+    response.status(status).json(resource);
+  }
+};
 
 // Enable CORS.
 app.use(function (request, response, next) {
@@ -89,7 +105,8 @@ app.use(function (request, response, next) {
       jwt.verify(accessToken, jwtSecret, function (error, payload) {
         if (error) {
           console.log(`Retrieved invalid access token "${accessToken}".`);
-          response.status(400).json({ error: "invalid_access_token" });
+          const message = { error: "invalid_access_token" };
+          sendResponse(request, response, 400, message);
         } else {
           request.id = payload.id;
           next();
@@ -105,8 +122,26 @@ app.use(function (request, response, next) {
       request.clientSecret = clientCredentials.substr(indexOfColon + 1);
       next();
     } else {
-      response.status(400).json({ error: "invalid_authorization_type" });
+      const message = { error: "invalid_authorization_type" };
+      sendResponse(request, response, 400, message);
     }
+  } catch (error) {
+    next();
+  }
+});
+
+//Converting the body from YAML if needed, and getting the Accept header
+app.use(function (request, response, next) {
+  try {
+    const contentTypeHeader = request.get("Content-Type");
+    const acceptHeader = request.get("Accept");
+    if (contentTypeHeader === "application/yaml") {
+      request.body = yaml.parse(request.body.toString());
+    }
+    if (acceptHeader) {
+      request.accept = acceptHeader;
+    }
+    next();
   } catch (error) {
     next();
   }
@@ -115,23 +150,25 @@ app.use(function (request, response, next) {
 //createAccount
 app.post("/v1/accounts", function (request, response) {
   if (request.clientId != client_id || request.clientSecret != client_secret) {
-    response.status(400).json({ error: "invalid_client_credentials" });
+    const message = { error: "invalid_client_credentials" };
+    sendResponse(request, response, 400, message);
   } else {
     const account = request.body; //{username: XY, password: XYZ}
 
     const hashingRounds = 8;
     const passwordToHash = account.password;
     const hashValue = bcrypt.hashSync(passwordToHash, hashingRounds);
-  
+
     const query = "INSERT INTO accounts (username, password) VALUES (?, ?)";
     const values = [account.username, hashValue];
     db.run(query, values, function (error) {
       if (error) {
-        response.status(500).end();
+        const message = { error: "username_not_unique" };
+        sendResponse(request, response, 500, message);
       } else {
         const id = this.lastID;
         response.setHeader("Location", "/accounts/" + id);
-        response.status(201).end();
+        sendResponse(request, response, 201, null);
       }
     });
   }
@@ -141,16 +178,23 @@ app.post("/v1/accounts", function (request, response) {
 app.put("/v1/accounts/:id", function (request, response) {
   const id = parseInt(request.params.id);
   if (id != request.id) {
-    response.status(400).json({ error: "unauthorized_request" });
+    const message = { error: "unauthorized_request" };
+    sendResponse(request, response, 400, message);
   } else {
     const updatedAccount = request.body; //{username: XY, password: XYZ}
+
+    const hashingRounds = 8;
+    const passwordToHash = updatedAccount.password;
+    const hashValue = bcrypt.hashSync(passwordToHash, hashingRounds);
+
     const query = "UPDATE accounts SET username = ?, password = ? WHERE id = ?";
-    const values = [updatedAccount.username, updatedAccount.password, id];
+    const values = [updatedAccount.username, hashValue, id];
     db.run(query, values, function (error) {
       if (error) {
-        response.status(500).end();
+        const message = { error: "username_not_unique" };
+        sendResponse(request, response, 500, message);
       } else {
-        response.status(204).end();
+        sendResponse(request, response, 204, null);
       }
     });
   }
@@ -160,15 +204,17 @@ app.put("/v1/accounts/:id", function (request, response) {
 app.delete("/v1/accounts/:id", function (request, response) {
   const id = parseInt(request.params.id);
   if (id != request.id) {
-    response.status(400).json({ error: "unauthorized_request" });
+    const message = { error: "unauthorized_request" };
+    sendResponse(request, response, 400, message);
   } else {
     const query = "DELETE FROM accounts WHERE id = ?";
     const values = [id];
     db.run(query, values, function (error) {
       if (error) {
-        response.status(500).end();
+        const message = { error: "account_not_exists" };
+        sendResponse(request, response, 500, message);
       } else {
-        response.status(204).end();
+        sendResponse(request, response, 204, null);
       }
     });
   }
@@ -178,7 +224,8 @@ app.delete("/v1/accounts/:id", function (request, response) {
 app.post("/v1/collections", function (request, response) {
   const collection = request.body; //{title: XY, description: XYZ, accountId: XY}
   if (collection.accountId != request.id) {
-    response.status(400).json({ error: "unauthorized_request" });
+    const message = { error: "unauthorized_request" };
+    sendResponse(request, response, 400, message);
   } else {
     const query =
       "INSERT INTO collections (title, description, accountId) VALUES (?, ?, ?)";
@@ -189,11 +236,11 @@ app.post("/v1/collections", function (request, response) {
     ];
     db.run(query, values, function (error) {
       if (error) {
-        response.status(500).end();
+        sendResponse(request, response, 500, null);
       } else {
         const id = this.lastID;
         response.setHeader("Location", "/collections/" + id);
-        response.status(201).end();
+        sendResponse(request, response, 201, null);
         fs.mkdirSync("../mozaik/public/images/" + id);
       }
     });
@@ -204,17 +251,18 @@ app.post("/v1/collections", function (request, response) {
 app.get("/v1/collections", function (request, response) {
   const id = request.query.accountId; //collections?accountId=1
   if (id != request.id) {
-    response.status(400).json({ error: "unauthorized_request" });
+    const message = { error: "unauthorized_request" };
+    sendResponse(request, response, 400, message);
   } else {
     const query = "SELECT * FROM collections WHERE accountId = ?";
     const values = [id];
     db.all(query, values, function (error, collections) {
       if (error) {
         // If something went wrong, send back status code 500.
-        response.status(500).end();
+        sendResponse(request, response, 500, null);
       } else {
         // Otherwise, send back the collections in JSON format.
-        response.status(200).json(collections);
+        sendResponse(request, response, 200, collections);
       }
     });
   }
@@ -227,18 +275,20 @@ app.put("/v1/collections/:id", function (request, response) {
   let values = [id];
   db.get(query, values, function (error, collection) {
     if (error) {
-      response.status(500).end();
+      const message = { error: "collection_not_exists" };
+      sendResponse(request, response, 500, message);
     } else if (collection.accountId != request.id) {
-      response.status(400).json({ error: "unauthorized_request" });
+      const message = { error: "unauthorized_request" };
+      sendResponse(request, response, 400, message);
     } else {
       const updatedCollection = request.body; //{title: XY, description: XYZ}
       query = "UPDATE collections SET title = ?, description = ? WHERE id = ?";
       values = [updatedCollection.title, updatedCollection.description, id];
       db.run(query, values, function (error) {
         if (error) {
-          response.status(500).end();
+          sendResponse(request, response, 500, null);
         } else {
-          response.status(204).end();
+          sendResponse(request, response, 204, null);
         }
       });
     }
@@ -252,17 +302,19 @@ app.delete("/v1/collections/:id", function (request, response) {
   let values = [id];
   db.get(query, values, function (error, collection) {
     if (error) {
-      response.status(500).end();
+      const message = { error: "collection_not_exists" };
+      sendResponse(request, response, 500, message);
     } else if (collection.accountId != request.id) {
-      response.status(400).json({ error: "unauthorized_request" });
+      const message = { error: "unauthorized_request" };
+      sendResponse(request, response, 400, message);
     } else {
       query = "DELETE FROM collections WHERE id = ?";
       values = [id];
       db.run(query, values, function (error) {
         if (error) {
-          response.status(500).end();
+          sendResponse(request, response, 500, null);
         } else {
-          response.status(204).end();
+          sendResponse(request, response, 204, null);
           fs.rmdirSync("../mozaik/public/images/" + id);
         }
       });
@@ -277,16 +329,23 @@ app.post("/v1/images", function (request, response) {
   let values = [image.collectionId];
   db.get(query, values, function (error, collection) {
     if (error) {
-      response.status(500).end();
+      const message = { error: "collection_not_exists" };
+      sendResponse(request, response, 500, message);
     } else if (collection.accountId != request.id) {
-      response.status(400).json({ error: "unauthorized_request" });
+      const message = { error: "unauthorized_request" };
+      sendResponse(request, response, 400, message);
     } else {
       const fileName = image.url.substr(image.url.lastIndexOf("/") + 1);
 
       const options = {
         url: image.url,
         dest:
-          "../mozaik/public/images/" + image.collectionId + "/" + Date.now() + "_" + fileName,
+          "../mozaik/public/images/" +
+          image.collectionId +
+          "/" +
+          Date.now() +
+          "_" +
+          fileName,
       };
 
       const location = options.dest;
@@ -295,7 +354,7 @@ app.post("/v1/images", function (request, response) {
       values = [location.substr(24), image.collectionId];
       db.run(query, values, function (error) {
         if (error) {
-          response.status(500).end();
+          sendResponse(request, response, 500, null);
         } else {
           download
             .image(options)
@@ -305,7 +364,7 @@ app.post("/v1/images", function (request, response) {
             .catch((err) => console.error(err));
           const id = this.lastID;
           response.setHeader("Location", "/images/" + id);
-          response.status(201).end();
+          sendResponse(request, response, 201, message);
         }
       });
     }
@@ -319,19 +378,21 @@ app.get("/v1/images", function (request, response) {
   let values = [id];
   db.get(query, values, function (error, collection) {
     if (error) {
-      response.status(500).end();
+      const message = { error: "collection_not_exists" };
+      sendResponse(request, response, 500, message);
     } else if (collection.accountId != request.id) {
-      response.status(400).json({ error: "unauthorized_request" });
+      const message = { error: "unauthorized_request" };
+      sendResponse(request, response, 400, message);
     } else {
       query = "SELECT * FROM images WHERE collectionId = ?";
       values = [id];
       db.all(query, values, function (error, images) {
         if (error) {
           // If something went wrong, send back status code 500.
-          response.status(500).end();
+          sendResponse(request, response, 500, null);
         } else {
-          // Otherwise, send back the images in JSON format.
-          response.status(200).json(images);
+          // Otherwise, send back the images.
+          sendResponse(request, response, 200, images);
         }
       });
     }
@@ -345,23 +406,26 @@ app.delete("/v1/images/:id", function (request, response) {
   let values = [id];
   db.get(query, values, function (error, image) {
     if (error) {
-      response.status(500).end();
+      const message = { error: "image_not_exists" };
+      sendResponse(request, response, 500, message);
     } else {
       query = "SELECT * FROM collections WHERE id = ?";
       values = [image.collectionId];
       db.get(query, values, function (error, collection) {
         if (error) {
-          response.status(500).end();
+          const message = { error: "collection_not_exists" };
+          sendResponse(request, response, 500, message);
         } else if (collection.accountId != request.id) {
-          response.status(400).json({ error: "unauthorized_request" });
+          const message = { error: "unauthorized_request" };
+          sendResponse(request, response, 400, message);
         } else {
           query = "DELETE FROM images WHERE id = ?";
           values = [id];
           db.run(query, values, function (error) {
             if (error) {
-              response.status(500).end();
+              sendResponse(request, response, 500, null);
             } else {
-              response.status(204).end();
+              sendResponse(request, response, 204, null);
               fs.unlinkSync("../mozaik/public/images/" + image.location);
             }
           });
@@ -374,7 +438,8 @@ app.delete("/v1/images/:id", function (request, response) {
 //signIn
 app.post("/v1/tokens", function (request, response) {
   if (request.clientId != client_id || request.clientSecret != client_secret) {
-    response.status(400).json({ error: "invalid_client_credentials" });
+    const message = { error: "invalid_client_credentials" };
+    sendResponse(request, response, 400, message);
   } else {
     const requestGrantType = request.body.grant_type;
     const requestUsername = request.body.username;
@@ -384,13 +449,16 @@ app.post("/v1/tokens", function (request, response) {
     const values = [requestUsername];
 
     if (requestGrantType != "password") {
-      response.status(400).json({ error: "unsupported_grant_type" });
+      const message = { error: "unsupported_grant_type" };
+      sendResponse(request, response, 400, message);
     } else if (requestUsername == null || requestPassword == null) {
-      response.status(400).json({ error: "invalid_request" });
+      const message = { error: "invalid_request" };
+      sendResponse(request, response, 400, message);
     } else {
       db.get(query, values, function (error, account) {
         if (error || account == null) {
-          response.status(400).json({ error: "invalid_grant" });
+          const message = { error: "invalid_grant" };
+          sendResponse(request, response, 400, message);
         } else if (bcrypt.compareSync(requestPassword, account.password)) {
           const dataToPutInAccessToken = {
             id: account.id,
@@ -406,13 +474,14 @@ app.post("/v1/tokens", function (request, response) {
             preferred_username: account.username,
           };
           const idToken = jwt.sign(dataToPutInIdToken, idSecret);
-          response.status(200).json({
+          sendResponse(request, response, 200, {
             access_token: accessToken,
             token_type: "Bearer",
             id_token: idToken,
           });
         } else {
-          response.status(400).json({ error: "invalid_grant" });
+          const message = { error: "invalid_grant" };
+          sendResponse(request, response, 400, message);
         }
       });
     }
