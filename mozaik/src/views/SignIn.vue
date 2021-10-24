@@ -45,7 +45,7 @@
             v-model="signInAccount.signInPassword"
           /><br />
         </form>
-
+        <a :href="googleAuthLink">Sign in with Google</a>
         <div>
           <router-link :to="'/registration'"
             ><button class="btn-outline">Register</button></router-link
@@ -82,7 +82,7 @@
 const client = require("../mozaik-client");
 
 export default {
-  props: ["user"],
+  props: ["user", "googleData"],
 
   data() {
     return {
@@ -92,7 +92,10 @@ export default {
       },
     };
   },
-  
+  computed: {
+    googleAuthLink() {
+      return this.googleData.auth_uri + "?client_id=" + this.googleData.client_id + "&redirect_uri=" + this.googleData.redirect_uri + "&response_type=code&scope=profile"
+  }},
   methods: {
     signUserIn() {
       const username = this.signInAccount.signInUsername;

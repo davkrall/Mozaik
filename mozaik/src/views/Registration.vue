@@ -80,6 +80,12 @@
           /><br />
         </form>
 
+
+
+        <a :href="googleAuthLink">Register with Google</a>
+
+
+
         <div class="mt-6">
           <router-link :to="'/signin'"
             ><button class="btn-outline">Sign in</button></router-link
@@ -116,6 +122,7 @@
 const client = require("../mozaik-client");
 
 export default {
+  props: ["user", "googleData"],
   data() {
     return {
       signUpAccount: {
@@ -124,7 +131,10 @@ export default {
       },
     };
   },
-
+  computed: {
+    googleAuthLink() {
+      return this.googleData.auth_uri + "?client_id=" + this.googleData.client_id + "&redirect_uri=" + this.googleData.redirect_uri + "&response_type=code&scope=profile"
+  }},
   methods: {
     createUser() {
       const account = {

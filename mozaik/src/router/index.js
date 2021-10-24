@@ -6,6 +6,7 @@ import SignIn from '../views/SignIn.vue'
 import Home from '../views/Home.vue'
 import Collection from '../views/Collection.vue'
 import Account from '../views/Account.vue'
+import GoogleAuth from '../views/GoogleAuth.vue'
 
 
 Vue.use(VueRouter)
@@ -46,9 +47,16 @@ const routes = [
     name: 'Account',
     component: Account
   },
+
+  {
+    path: '/callback',
+    name: 'GoogleAuth',
+    component: GoogleAuth
+  },
 ]
 
 const router = new VueRouter({
+  mode: 'history',
   routes
 })
 

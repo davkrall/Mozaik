@@ -488,6 +488,28 @@ app.post("/v1/tokens", function (request, response) {
   }
 });
 
+//getAccount
+app.get("/v1/accounts", function (request, response) {
+  if (request.clientId != client_id || request.clientSecret != client_secret) {
+    const message = { error: "invalid_client_credentials" };
+    sendResponse(request, response, 400, message);
+  } else {
+    const username = request.query.username; //accounts?username=abc123
+    const query = "SELECT EXISTS(SELECT 1 FROM accounts WHERE username = ?)";
+    const values = [username];
+    db.all(query, values, function (error, result) {
+      if (error) {
+        // If something went wrong, send back status code 500.
+        sendResponse(request, response, 500, null);
+      } else {
+        // Otherwise, send back the result (0 or 1)
+        sendResponse(request, response, 200, Object.values(result[0])[0]);
+      }
+    });
+  }
+  
+});
+
 app.listen(3000, () => {
   console.log("Running...");
 });

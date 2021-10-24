@@ -6,6 +6,7 @@ const networkDelayInMs = 10;
 const rootPath = "http://localhost:3000/v1";
 const client_id = "ShVmYq3t6w9z$C&F)J@NcRfUjWnZr4u7";
 const client_secret = "8x/A%D*G-KaPdSgVkYp3s6v9y$B&E(H+";
+const google_login_secret = "aNnm/bQTCC/<6E[&qU2XukmQ5vMx24%p";
 
 let accessToken = null;
 
@@ -425,4 +426,118 @@ export async function signIn(username, password, callback) {
 export async function signOut(callback) {
   accessToken = null;
   callback();
+}
+
+async function googleAuth(code, client_id, client_secret, redirect_uri) {
+  let bodyToSend;
+  let body = {
+    code: code,
+    client_id: client_id,
+    client_secret: client_secret,
+    redirect_uri: redirect_uri,
+    grant_type: "authorization_code",
+  };
+  const headers = new Headers();
+  headers.append("Content-Type", "application/x-www-form-urlencoded");
+
+        const data = new URLSearchParams();
+        for (const key of Object.keys(body)) {
+          data.append(key, body[key]);
+        }
+        bodyToSend = data.toString();
+
+  try {
+    const requestInit = {
+      method: "POST",
+      headers,
+      body: bodyToSend
+    };
+
+      return await fetch("https://oauth2.googleapis.com/token", requestInit);
+    } catch (error) {
+      throw ["networkError"];
+    }
+}
+
+async function getAccount(username) {
+  let response;
+
+  try {
+    response = await sendRequest("GET", "/accounts?username=" + username);
+  } catch (errors) {
+    callback(errors);
+    return;
+  }
+
+  let errors = [];
+  let result = -1;
+
+  switch (response.status) {
+    case 200:
+      result = await response.json();
+      return result;
+
+    case 500:
+      errors = ["backendError"];
+      break;
+
+    default:
+      displayError(response);
+  }
+}
+
+export async function googleCredentials(code, client_id, client_secret, redirect_uri, callback) {
+  let response;
+
+  try {
+    response = await googleAuth(code, client_id, client_secret, redirect_uri);
+  } catch (errors) {
+    callback(errors);
+    return;
+  }
+
+  let errors = [];
+  let accountToReturn;
+
+  switch (response.status) {
+    case 200:
+      const body = await response.json();
+      const payload = jwtDecode(body.id_token);
+      const googleUsername = payload.name;
+      const googlePassword = googleUsername + "_" + payload.sub + "_" + google_login_secret;
+
+      const registeredUser = await getAccount(googleUsername);
+      if(registeredUser) {
+        //sign in
+        await signIn(googleUsername, googlePassword, (errors, account) => {
+          if (errors.length == 0) {
+            accountToReturn = account;
+          } else {
+            alert(errors);
+          }
+        });
+      } else {
+        //register
+        const newAccount = {
+          username: googleUsername,
+          password: googlePassword
+        }
+        await createAccount(newAccount, (errors, id) => {});
+
+        //and sign in
+        await signIn(googleUsername, googlePassword, (errors, account) => {
+          if (errors.length == 0) {
+            accountToReturn = account;
+          } else {
+            alert(errors);
+          }
+        });
+      }
+      break;
+
+    default:
+      displayError(response);
+  }
+
+  callback(errors, accountToReturn);
 }
