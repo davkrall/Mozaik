@@ -19,10 +19,21 @@
     </div>
 
     <main>
-      <div class="mt-16 mb-32 flex flex-col justify-center items-center">
-        <p class="text-3xl font-display mb-12 text-purple">
+      <div class="mt-20 mb-20 flex flex-col justify-center items-center">
+        <p class="text-3xl font-display text-purple">
           Sign in quick and easy
         </p>
+
+        <p class="text-base font-normal font-body text-black mt-6">
+          Use Google to sign into your account
+        </p>
+
+        <button class="btn-purple w-64 my-8">
+          <a :href="googleAuthLink">Sign in with Google</a>
+        </button>
+
+        <p class="mb-6">Or fill in the fields below:</p>
+
         <form>
           <label for="username" class="font-display text-base pl-4"
             >Username</label
@@ -41,11 +52,10 @@
             id="password"
             type="password"
             placeholder="Use at least 6 characters"
-            class="input mb-14"
+            class="input mb-10"
             v-model="signInAccount.signInPassword"
           /><br />
         </form>
-        <a :href="googleAuthLink">Sign in with Google</a>
         <div>
           <router-link :to="'/registration'"
             ><button class="btn-outline">Register</button></router-link
@@ -62,7 +72,7 @@
           justify-between
           items-center
           border-t border-black
-          my-10
+          mb-10
         "
         >
           <p class="text-2xl text-normal font-display my-8">Mozaik</p>
@@ -94,8 +104,16 @@ export default {
   },
   computed: {
     googleAuthLink() {
-      return this.googleData.auth_uri + "?client_id=" + this.googleData.client_id + "&redirect_uri=" + this.googleData.redirect_uri + "&response_type=code&scope=profile"
-  }},
+      return (
+        this.googleData.auth_uri +
+        "?client_id=" +
+        this.googleData.client_id +
+        "&redirect_uri=" +
+        this.googleData.redirect_uri +
+        "&response_type=code&scope=profile"
+      );
+    },
+  },
   methods: {
     signUserIn() {
       const username = this.signInAccount.signInUsername;

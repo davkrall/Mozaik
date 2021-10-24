@@ -9,8 +9,8 @@
     </div>
 
     <main>
-      <div class="h-96">
-        <div class="mt-16 mb-32 flex flex-col justify-center items-center">
+      <div class="h-90">
+        <div class="mt-36 mb-36 flex flex-col justify-center items-center">
           <div class="flex items-center">
             <svg
               @click="$router.go(-1)"
@@ -69,7 +69,7 @@
           justify-between
           items-center
           border-t border-black
-          my-10
+          mb-10
         "
       >
         <p class="text-2xl text-normal font-display my-8">Mozaik</p>
@@ -125,7 +125,7 @@ export default {
         client.updateAccountById(accountId, updatedUser, (errors, account) => {
           if (errors.length == 0) {
             alert("Account updated!");
-            this.user.sessionUsername = updatedUser.username
+            this.user.sessionUsername = updatedUser.username;
           } else {
             alert(errors);
           }
