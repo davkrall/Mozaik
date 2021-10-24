@@ -8,7 +8,7 @@ const client_id = "ShVmYq3t6w9z$C&F)J@NcRfUjWnZr4u7";
 const client_secret = "8x/A%D*G-KaPdSgVkYp3s6v9y$B&E(H+";
 const google_login_secret = "aNnm/bQTCC/<6E[&qU2XukmQ5vMx24%p";
 
-let accessToken = null;
+const myStorage = window.localStorage;
 
 async function sendRequest(
   method,
@@ -18,9 +18,9 @@ async function sendRequest(
 ) {
   let bodyToSend = "";
   const headers = new Headers();
-
+  let accessToken = myStorage.getItem("accessToken");
   // Add the access token if signed in, and the client authentication token if not
-  if (accessToken != null) {
+  if (accessToken != "" && accessToken != null) {
     headers.append("Authorization", "Bearer " + accessToken);
   } else {
     headers.append(
@@ -405,7 +405,7 @@ export async function signIn(username, password, callback) {
   switch (response.status) {
     case 200:
       body = await response.json();
-      accessToken = body.access_token;
+      myStorage.setItem("accessToken", body.access_token);
 
       const payload = jwtDecode(body.id_token);
       account.id = payload.sub;
@@ -413,7 +413,7 @@ export async function signIn(username, password, callback) {
       break;
 
     case 400:
-      errors = ["clientError"];
+      errors = ["Incorrect credentials!"];
       break;
 
     default:
@@ -424,7 +424,7 @@ export async function signIn(username, password, callback) {
 }
 
 export async function signOut(callback) {
-  accessToken = null;
+  myStorage.setItem("accessToken", "");
   callback();
 }
 
@@ -440,23 +440,23 @@ async function googleAuth(code, client_id, client_secret, redirect_uri) {
   const headers = new Headers();
   headers.append("Content-Type", "application/x-www-form-urlencoded");
 
-        const data = new URLSearchParams();
-        for (const key of Object.keys(body)) {
-          data.append(key, body[key]);
-        }
-        bodyToSend = data.toString();
+  const data = new URLSearchParams();
+  for (const key of Object.keys(body)) {
+    data.append(key, body[key]);
+  }
+  bodyToSend = data.toString();
 
   try {
     const requestInit = {
       method: "POST",
       headers,
-      body: bodyToSend
+      body: bodyToSend,
     };
 
-      return await fetch("https://oauth2.googleapis.com/token", requestInit);
-    } catch (error) {
-      throw ["networkError"];
-    }
+    return await fetch("https://oauth2.googleapis.com/token", requestInit);
+  } catch (error) {
+    throw ["networkError"];
+  }
 }
 
 async function getAccount(username) {
@@ -486,7 +486,13 @@ async function getAccount(username) {
   }
 }
 
-export async function googleCredentials(code, client_id, client_secret, redirect_uri, callback) {
+export async function googleCredentials(
+  code,
+  client_id,
+  client_secret,
+  redirect_uri,
+  callback
+) {
   let response;
 
   try {
@@ -504,10 +510,11 @@ export async function googleCredentials(code, client_id, client_secret, redirect
       const body = await response.json();
       const payload = jwtDecode(body.id_token);
       const googleUsername = payload.name;
-      const googlePassword = googleUsername + "_" + payload.sub + "_" + google_login_secret;
+      const googlePassword =
+        googleUsername + "_" + payload.sub + "_" + google_login_secret;
 
       const registeredUser = await getAccount(googleUsername);
-      if(registeredUser) {
+      if (registeredUser) {
         //sign in
         await signIn(googleUsername, googlePassword, (errors, account) => {
           if (errors.length == 0) {
@@ -520,8 +527,8 @@ export async function googleCredentials(code, client_id, client_secret, redirect
         //register
         const newAccount = {
           username: googleUsername,
-          password: googlePassword
-        }
+          password: googlePassword,
+        };
         await createAccount(newAccount, (errors, id) => {});
 
         //and sign in

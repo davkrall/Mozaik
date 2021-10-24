@@ -347,7 +347,7 @@ export default {
         accountId: this.user.sessionUserId,
       };
 
-      if (collectionTitle == "") {
+      if (collectionTitle == "" || collectionTitle == null) {
         alert("Provide a collection title!");
       } else {
         client.createCollection(collection, (errors, id) => {

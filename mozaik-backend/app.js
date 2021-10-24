@@ -364,7 +364,7 @@ app.post("/v1/images", function (request, response) {
             .catch((err) => console.error(err));
           const id = this.lastID;
           response.setHeader("Location", "/images/" + id);
-          sendResponse(request, response, 201, message);
+          sendResponse(request, response, 201, null);
         }
       });
     }
@@ -507,7 +507,6 @@ app.get("/v1/accounts", function (request, response) {
       }
     });
   }
-  
 });
 
 app.listen(3000, () => {

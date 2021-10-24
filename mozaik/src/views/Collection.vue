@@ -14,7 +14,9 @@
     <main>
       <div class="flex mt-16 mb-16">
         <div>
-          <p class="font-display text-lg">Hi, {{ this.user.sessionUsername }}</p>
+          <p class="font-display text-lg">
+            Hi, {{ this.user.sessionUsername }}
+          </p>
           <router-link :to="'/account/'"
             ><p class="font-copy font-light text-sm mt-1 hover:text-purple">
               Manage account
@@ -59,7 +61,7 @@
 
             <svg
               @click="editCollectionName()"
-              class="stroke-current hover:text-purple ml-4"
+              class="stroke-current hover:text-purple ml-4 cursor-pointer"
               width="18"
               height="18"
               viewBox="0 0 36 36"
@@ -156,7 +158,7 @@
               <img :src="'/images/' + image.location" alt="image" />
               <p
                 @click="deleteImageById(image.id)"
-                class="font-display text-base mt-3 hover:text-purple"
+                class="font-display text-base mt-3 hover:text-purple cursor-pointer"
               >
                 Remove
               </p>
@@ -206,12 +208,6 @@ export default {
 
   methods: {
     getImageList() {
-      var accountId = this.user.sessionUserId;
-
-      if (!accountId) {
-        alert("You are not logged in!");
-      }
-
       client.getImagesByCollectionId(this.collectionId, (errors, images) => {
         if (errors.length == 0) {
           this.imageList = images;
@@ -223,19 +219,27 @@ export default {
 
     addNewImage() {
       var imgUrl = "";
-      imgUrl = prompt("Paste your image Url below!", "");
+      imgUrl = prompt(
+        "Paste your image Url below! Make sure it ends with .jpg or .png",
+        ""
+      );
 
       const img = {
         url: imgUrl,
         collectionId: this.$route.params.id,
       };
 
-      if (imgUrl == "") {
+      const endOfImgUrl = imgUrl.substr(imgUrl.length - 4);
+
+      if (imgUrl == "" || imgUrl == null) {
         alert("Provide an image URL!");
+      } else if (endOfImgUrl != ".png" && endOfImgUrl != ".jpg") {
+        alert("The URL you provided doesn't end with .jpg or .png");
       } else {
+        this.imageList = [];
         client.createImage(img, (errors, id) => {
           if (errors.length == 0) {
-            this.getImageList();
+            //this.getImageList();
           } else {
             alert(errors);
           }

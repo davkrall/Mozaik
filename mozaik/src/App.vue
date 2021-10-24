@@ -1,5 +1,5 @@
 <template>
-  <router-view :user="user" :googleData="googleData"/>
+  <router-view :user="user" :googleData="googleData" />
 </template>
 
 <script>

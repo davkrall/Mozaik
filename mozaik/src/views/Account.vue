@@ -14,7 +14,7 @@
           <div class="flex items-center">
             <svg
               @click="$router.go(-1)"
-              class="absolute left-20"
+              class="absolute left-20 cursor-pointer"
               width="21"
               height="17"
               viewBox="0 0 21 17"
@@ -119,7 +119,12 @@ export default {
         password: updatedPassword,
       };
 
-      if (updatedUsername == "" || updatedPassword == "") {
+      const invalidValues = ["", null];
+
+      if (
+        invalidValues.indexOf(updatedUsername) != -1 ||
+        invalidValues.indexOf(updatedPassword) != -1
+      ) {
         alert("Fill in both data!");
       } else {
         client.updateAccountById(accountId, updatedUser, (errors, account) => {

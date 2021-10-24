@@ -22,7 +22,7 @@
       <div class="mt-20 mb-20 flex flex-col justify-center items-center">
         <p class="text-3xl font-display text-purple">Register quick and easy</p>
         <p class="text-base font-normal font-body text-black mt-6">
-          Register an acccount with Facebook
+          Register an account with Google
         </p>
 
         <button class="btn-purple w-64 my-8">

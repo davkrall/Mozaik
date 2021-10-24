@@ -31,20 +31,25 @@ const client = require("../mozaik-client");
 export default {
   props: ["user", "googleData"],
   data() {
-    return {
-    };
+    return {};
   },
   created: function() {
-    client.googleCredentials(this.$route.query.code, this.googleData.client_id, this.googleData.client_secret, this.googleData.redirect_uri, (errors, accountToReturn) => {
-          if (errors.length == 0) {
-            this.user.isSignedIn = true;
-            this.user.sessionUserId = accountToReturn.id;
-            this.user.sessionUsername = accountToReturn.username;
-            this.$router.push("/home");
-          } else {
-            alert(errors);
-          }
-        })
-  }
+    client.googleCredentials(
+      this.$route.query.code,
+      this.googleData.client_id,
+      this.googleData.client_secret,
+      this.googleData.redirect_uri,
+      (errors, accountToReturn) => {
+        if (errors.length == 0) {
+          this.user.isSignedIn = true;
+          this.user.sessionUserId = accountToReturn.id;
+          this.user.sessionUsername = accountToReturn.username;
+          this.$router.push("/home");
+        } else {
+          alert(errors);
+        }
+      }
+    );
+  },
 };
 </script>

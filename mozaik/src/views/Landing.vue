@@ -23,7 +23,7 @@
         <p class="text-base font-body font-light leading-7">
           Hello designer, this web application offers you a creative space where
           you <br />
-          can upload and store collection of images as your source of
+          can upload and store collections of images as your source of
           inspiration. <br />
           Say goodbye to messy, and scattered moodboards across multiple
           applications. <br />
