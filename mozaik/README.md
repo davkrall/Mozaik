@@ -14,3 +14,5 @@ npm run serve
 ```
 npm run start
 ```
+
+### For Google authentication, your email address might need to be added to a list in the Google Developers Console, please contact David if it doesn't work
