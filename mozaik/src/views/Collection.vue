@@ -234,7 +234,7 @@ export default {
         this.imageList = [];
         client.createImage(img, (errors, id) => {
           if (errors.length == 0) {
-            this.getImageList();
+            setTimeout(() => { this.getImageList(); }, 1000);
           } else {
             alert(errors);
           }

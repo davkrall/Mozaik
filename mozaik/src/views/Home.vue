@@ -5,7 +5,7 @@
         <h1 class="text-4xl text-normal font-display">Mozaik</h1></router-link
       >
       <nav class="flex">
-          ><button @click="signOut()" class="btn-purple">
+          <button @click="signOut()" class="btn-purple">
             Sign out
           </button>
       </nav>

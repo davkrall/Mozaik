@@ -45,7 +45,7 @@
           </div>
 
           <p class="text-lg font-normal font-body text-black mt-10 mb-14">
-            You are signed in as {{ this.user.sessionUsername }}
+            You are signed in as {{ username }}
           </p>
 
           <div>
@@ -95,9 +95,11 @@ export default {
           localStorage.getItem("sessionUserId"),
           (errors) => {
             if (errors.length == 0) {
+              client.signOut();
               localStorage.setItem("isSignedIn", false);
               localStorage.removeItem("sessionUserId");
               localStorage.removeItem("sessionUsername");
+              localStorage.removeItem("collectionList");
               this.$router.push("/");
             } else {
               alert(errors);
@@ -138,6 +140,14 @@ export default {
         });
       }
     },
+
+    getFromLocalStorage() {
+      this.username = localStorage.getItem("sessionUsername");
+    }
+  },
+
+  created() {
+    this.getFromLocalStorage();
   },
 };
 </script>
