@@ -1,5 +1,5 @@
 <template>
-  <router-view :user="user" :googleData="googleData" />
+  <router-view :googleData="googleData" />
 </template>
 
 <script>
@@ -8,11 +8,6 @@ const client = require("./mozaik-client");
 module.exports = {
   data() {
     return {
-      user: {
-        isSignedIn: false,
-        sessionUserId: "",
-        sessionUsername: "",
-      },
       parameters: {
         collectionList: "",
       },

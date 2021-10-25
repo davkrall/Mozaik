@@ -8,8 +8,6 @@ const client_id = "ShVmYq3t6w9z$C&F)J@NcRfUjWnZr4u7";
 const client_secret = "8x/A%D*G-KaPdSgVkYp3s6v9y$B&E(H+";
 const google_login_secret = "aNnm/bQTCC/<6E[&qU2XukmQ5vMx24%p";
 
-const myStorage = window.localStorage;
-
 async function sendRequest(
   method,
   uri,
@@ -18,7 +16,7 @@ async function sendRequest(
 ) {
   let bodyToSend = "";
   const headers = new Headers();
-  let accessToken = myStorage.getItem("accessToken");
+  let accessToken = localStorage.getItem("accessToken");
   // Add the access token if signed in, and the client authentication token if not
   if (accessToken != "" && accessToken != null) {
     headers.append("Authorization", "Bearer " + accessToken);
@@ -405,7 +403,7 @@ export async function signIn(username, password, callback) {
   switch (response.status) {
     case 200:
       body = await response.json();
-      myStorage.setItem("accessToken", body.access_token);
+      localStorage.setItem("accessToken", body.access_token);
 
       const payload = jwtDecode(body.id_token);
       account.id = payload.sub;
@@ -423,9 +421,8 @@ export async function signIn(username, password, callback) {
   callback(errors, account);
 }
 
-export async function signOut(callback) {
-  myStorage.setItem("accessToken", "");
-  callback();
+export async function signOut() {
+  localStorage.removeItem("accessToken");
 }
 
 async function googleAuth(code, client_id, client_secret, redirect_uri) {

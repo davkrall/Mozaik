@@ -90,7 +90,7 @@
 const client = require("../mozaik-client");
 
 export default {
-  props: ["user", "googleData"],
+  props: ["googleData"],
   data() {
     return {
       signUpAccount: {

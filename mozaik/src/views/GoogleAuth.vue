@@ -29,7 +29,7 @@
 const client = require("../mozaik-client");
 
 export default {
-  props: ["user", "googleData"],
+  props: ["googleData"],
   data() {
     return {};
   },
@@ -41,9 +41,9 @@ export default {
       this.googleData.redirect_uri,
       (errors, accountToReturn) => {
         if (errors.length == 0) {
-          this.user.isSignedIn = true;
-          this.user.sessionUserId = accountToReturn.id;
-          this.user.sessionUsername = accountToReturn.username;
+          localStorage.setItem("isSignedIn", true);
+          localStorage.setItem("sessionUserId", accountToReturn.id);
+          localStorage.setItem("sessionUsername", accountToReturn.username);
           this.$router.push("/home");
         } else {
           alert(errors);

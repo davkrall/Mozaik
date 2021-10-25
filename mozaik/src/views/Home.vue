@@ -5,11 +5,9 @@
         <h1 class="text-4xl text-normal font-display">Mozaik</h1></router-link
       >
       <nav class="flex">
-        <router-link :to="'/'"
           ><button @click="signOut()" class="btn-purple">
             Sign out
-          </button></router-link
-        >
+          </button>
       </nav>
     </header>
 
@@ -17,7 +15,7 @@
       <div class="flex mt-16 mb-16">
         <div>
           <p class="font-display text-lg">
-            Hi, {{ this.user.sessionUsername }}
+            Hi, {{ username }}
           </p>
           <router-link :to="'/account/'"
             ><p class="font-copy font-light text-sm mt-1 hover:text-purple">
@@ -328,11 +326,10 @@
 const client = require("../mozaik-client");
 
 export default {
-  props: ["user"],
-
   data() {
     return {
       collectionList: [],
+      username: "",
     };
   },
 
@@ -344,7 +341,7 @@ export default {
       const collection = {
         title: collectionTitle,
         description: "",
-        accountId: this.user.sessionUserId,
+        accountId: localStorage.getItem("sessionUserId"),
       };
 
       if (collectionTitle == "" || collectionTitle == null) {
@@ -361,32 +358,35 @@ export default {
     },
 
     signOut() {
-      this.user.isSignedIn = false;
-      this.user.sessionUserId = "";
-      this.user.sessionUsername = "";
+      client.signOut();
+      localStorage.setItem("isSignedIn", false);
+      localStorage.removeItem("sessionUserId");
+      localStorage.removeItem("sessionUsername");
+      localStorage.removeItem("collectionList");
       this.$router.push("/");
     },
 
     getCollectionList() {
-      var accountId = this.user.sessionUserId;
-
-      if (!accountId) {
-        alert("You are not logged in!");
-      }
+      var accountId = localStorage.getItem("sessionUserId");
 
       client.getCollectionsByAccountId(accountId, (errors, collections) => {
         if (errors.length == 0) {
           this.collectionList = collections;
-          this.user.collectionList = collections;
+          localStorage.setItem("collectionList", JSON.stringify(collections));
         } else {
           alert(errors);
         }
       });
     },
+
+    getFromLocalStorage() {
+      this.username = localStorage.getItem("sessionUsername");
+    }
   },
 
   created() {
     this.getCollectionList();
+    this.getFromLocalStorage();
   },
 };
 </script>

@@ -241,7 +241,7 @@ app.post("/v1/collections", function (request, response) {
         const id = this.lastID;
         response.setHeader("Location", "/collections/" + id);
         sendResponse(request, response, 201, null);
-        fs.mkdirSync("../mozaik/public/images/" + id);
+        fs.mkdirSync("../mozaik/public/images/" + id, {recursive: true});
       }
     });
   }
@@ -315,7 +315,7 @@ app.delete("/v1/collections/:id", function (request, response) {
           sendResponse(request, response, 500, null);
         } else {
           sendResponse(request, response, 204, null);
-          fs.rmdirSync("../mozaik/public/images/" + id);
+          fs.rmdirSync("../mozaik/public/images/" + id, {recursive: true});
         }
       });
     }

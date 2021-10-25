@@ -88,26 +88,27 @@
 const client = require("../mozaik-client");
 
 export default {
-  props: ["user"],
-
   methods: {
     deleteAccount() {
       if (confirm("Are you sure you want to delete this account?")) {
-        client.deleteAccountById(this.user.sessionUserId, (errors) => {
-          if (errors.length == 0) {
-            this.user.isSignedIn = false;
-            this.user.sessionUserId = "";
-            this.user.sessionUsername = "";
-            this.$router.push("/");
-          } else {
-            alert(errors);
+        client.deleteAccountById(
+          localStorage.getItem("sessionUserId"),
+          (errors) => {
+            if (errors.length == 0) {
+              localStorage.setItem("isSignedIn", false);
+              localStorage.removeItem("sessionUserId");
+              localStorage.removeItem("sessionUsername");
+              this.$router.push("/");
+            } else {
+              alert(errors);
+            }
           }
-        });
+        );
       }
     },
-
+    
     updateAccount() {
-      var accountId = this.user.sessionUserId;
+      var accountId = localStorage.getItem("sessionUserId");
       var updatedUsername = "";
       updatedUsername = prompt("Update your username below!", "");
 
@@ -130,7 +131,7 @@ export default {
         client.updateAccountById(accountId, updatedUser, (errors, account) => {
           if (errors.length == 0) {
             alert("Account updated!");
-            this.user.sessionUsername = updatedUser.username;
+            localStorage.setItem("sessionUsername", updatedUser.username);
           } else {
             alert(errors);
           }

@@ -5,18 +5,14 @@
         <h1 class="text-4xl text-normal font-display">Mozaik</h1></router-link
       >
       <nav class="flex">
-        <router-link :to="'/'"
-          ><button class="btn-purple">Sign out</button></router-link
-        >
+        <button  @click="signOut()" class="btn-purple">Sign out</button>
       </nav>
     </header>
 
     <main>
       <div class="flex mt-16 mb-16">
         <div>
-          <p class="font-display text-lg">
-            Hi, {{ this.user.sessionUsername }}
-          </p>
+          <p class="font-display text-lg">Hi, {{ username }}</p>
           <router-link :to="'/account/'"
             ><p class="font-copy font-light text-sm mt-1 hover:text-purple">
               Manage account
@@ -196,13 +192,12 @@
 const client = require("../mozaik-client");
 
 export default {
-  props: ["user"],
-
   data() {
     return {
       imageList: [],
       collectionId: this.$route.params.id,
       currentTitle: "",
+      username: "",
     };
   },
 
@@ -239,7 +234,7 @@ export default {
         this.imageList = [];
         client.createImage(img, (errors, id) => {
           if (errors.length == 0) {
-            //this.getImageList();
+            this.getImageList();
           } else {
             alert(errors);
           }
@@ -273,9 +268,10 @@ export default {
 
     getCurrentTitle() {
       var i = 0;
-      for (i = 0; i < this.user.collectionList.length; i++) {
-        if (this.user.collectionList[i].id == this.collectionId) {
-          this.currentTitle = this.user.collectionList[i].title;
+      let list = JSON.parse(localStorage.getItem("collectionList"));
+      for (i = 0; i < list.length; i++) {
+        if (list[i].id == this.collectionId) {
+          this.currentTitle = list[i].title;
         }
       }
     },
@@ -306,11 +302,23 @@ export default {
         );
       }
     },
+    signOut() {
+      client.signOut();
+      localStorage.setItem("isSignedIn", false);
+      localStorage.removeItem("sessionUserId");
+      localStorage.removeItem("sessionUsername");
+      localStorage.removeItem("collectionList");
+      this.$router.push("/");
+    },
+    getFromLocalStorage() {
+      this.username = localStorage.getItem("sessionUsername");
+    },
   },
 
   created() {
-    this.getImageList();
+    this.getFromLocalStorage();
     this.getCurrentTitle();
+    this.getImageList();
   },
 };
 </script>
