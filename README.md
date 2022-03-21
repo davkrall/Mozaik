@@ -22,3 +22,5 @@ In the mozaik directory, run
 ### `npm run serve`
 
 to start the frontend.
+
+For Google authentication, your email address might need to be added to a list in the Google Developers Console, please contact David if it doesn't work
